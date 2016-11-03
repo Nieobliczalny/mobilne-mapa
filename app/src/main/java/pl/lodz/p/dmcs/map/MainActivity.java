@@ -1,6 +1,7 @@
 package pl.lodz.p.dmcs.map;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -56,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
                                 try {
                                     Toast t = Toast.makeText(ctx, "Welcome " + obj.getString("nick") + "!", Toast.LENGTH_SHORT);
                                     t.show();
+                                    Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                                    startActivity(intent);
                                 } catch (JSONException ex){
                                     ex.printStackTrace();
                                 }
