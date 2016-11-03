@@ -2,10 +2,8 @@ package pl.lodz.p.dmcs.map;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,17 +11,6 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.EventListener;
 
 public class MainActivity extends AppCompatActivity {
     protected Context ctx;
@@ -48,9 +35,15 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 SendPostTask task = new SendPostTask();
+                task.setActivity(MainActivity.this);
                 task.setResponseListener(new JsonResponseListener() {
                     @Override
                     public void onResponse(final JSONObject obj) {
+                        try {
+                            if (obj.has("token")) token = obj.getString("token");
+                        } catch (JSONException ex){
+                            ex.printStackTrace();
+                        }
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -58,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
                                     Toast t = Toast.makeText(ctx, "Welcome " + obj.getString("nick") + "!", Toast.LENGTH_SHORT);
                                     t.show();
                                     Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                                    intent.putExtra("token", token);
                                     startActivity(intent);
                                 } catch (JSONException ex){
                                     ex.printStackTrace();
@@ -86,9 +80,15 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 SendPostTask task = new SendPostTask();
+                task.setActivity(MainActivity.this);
                 task.setResponseListener(new JsonResponseListener() {
                     @Override
                     public void onResponse(final JSONObject obj) {
+                        try {
+                            if (obj.has("token")) token = obj.getString("token");
+                        } catch (JSONException ex){
+                            ex.printStackTrace();
+                        }
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -105,107 +105,5 @@ public class MainActivity extends AppCompatActivity {
                 task.execute(data);
             }
         });
-    }
-
-    private class SendPostTask extends AsyncTask<JSONObject, Integer, String> {
-        private JsonResponseListener responseListener = null;
-        @Override
-        protected String doInBackground(JSONObject... params) {
-            int count = params.length;
-            for (int i = 0; i < count; i++) {
-                try {
-                    URL u = new URL("http://mobilne.kjozwiak.ovh/index.php");
-                    InputStream is = downloadUrl(u, params[i]);
-                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                    StringBuilder jsonStringBuilder = new StringBuilder();
-                    String line;
-                    while ((line = br.readLine()) != null)
-                    {
-                        jsonStringBuilder.append(line);
-                    }
-                    is.close();
-                    return jsonStringBuilder.toString();
-                } catch (Exception mue) {
-                    //
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast t = Toast.makeText(ctx, "Error while contacting server", Toast.LENGTH_SHORT);
-                            t.show();
-                        }
-                    });
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(final String l) {
-            try {
-                final JSONObject json = new JSONObject(l);
-                if (json.has("error"))
-                {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Toast t = Toast.makeText(ctx, "Error - " + json.getString("error"), Toast.LENGTH_SHORT);
-                                t.show();
-                            } catch (Exception e) {
-                                //
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    if (json.has("token")) token = json.getString("token");
-                    if (responseListener != null) responseListener.onResponse(json);
-                    /*runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Toast t = Toast.makeText(ctx, "Got response! " + l, Toast.LENGTH_SHORT);
-                                t.show();
-                            } catch (Exception e) {
-                                //
-                            }
-                        }
-                    });*/
-                }
-            } catch (Exception e){
-                //
-                if (l != null) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast t = Toast.makeText(ctx, "Error while parsing response", Toast.LENGTH_SHORT);
-                            t.show();
-                        }
-                    });
-                }
-            }
-        }
-
-        private InputStream downloadUrl(URL url, JSONObject data) throws IOException {
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
-            conn.setRequestMethod("POST");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setChunkedStreamingMode(0);
-            // Starts the query
-            OutputStream outputPost = new BufferedOutputStream(conn.getOutputStream());
-            outputPost.write(data.toString().getBytes());
-            outputPost.flush();
-            outputPost.close();
-            return conn.getInputStream();
-        }
-
-        public void setResponseListener(JsonResponseListener jrl)
-        {
-            responseListener = jrl;
-        }
     }
 }
