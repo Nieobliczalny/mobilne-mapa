@@ -11,6 +11,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -92,6 +93,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 JSONObject building = buildings.getJSONObject(i);
                 LatLng weeia = new LatLng(building.getDouble("latitude"), building.getDouble("longitude"));
                 mMap.addMarker(new MarkerOptions().position(weeia).title(building.getString("name")));
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+                {
+
+                    @Override
+                    public boolean onMarkerClick(Marker arg0) {
+                        Intent intent = new Intent(MapsActivity.this, FloorsActivity.class);
+                        startActivity(intent);
+                        return true;
+                    }
+
+                });
             } catch (JSONException e) {
                 e.printStackTrace();
             }
