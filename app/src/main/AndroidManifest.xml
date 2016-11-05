@@ -25,6 +25,7 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity android:name=".FloorsActivity" />
+        <activity android:name=".NavigateActivity" />
     </application>
 
 </manifest>

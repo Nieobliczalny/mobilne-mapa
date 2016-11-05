@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                                 try {
                                     Toast t = Toast.makeText(ctx, "Welcome " + obj.getString("nick") + "!", Toast.LENGTH_SHORT);
                                     t.show();
-                                    Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                                    Intent intent = new Intent(MainActivity.this, NavigateActivity.class);
                                     intent.putExtra("token", token);
                                     startActivity(intent);
                                 } catch (JSONException ex){
