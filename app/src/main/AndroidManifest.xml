@@ -30,6 +30,7 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity android:name=".OSMapsActivity"></activity>
+        <activity android:name=".FloorsActivity" />
     </application>
 
 </manifest>
