@@ -2,35 +2,46 @@ package pl.lodz.p.dmcs.map;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.api.IMapController;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.constants.OpenStreetMapTileProviderConstants;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.TilesOverlay;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class OSMapsActivity extends AppCompatActivity {
     private final static int REQUEST_WRITE_STORAGE = 1;
     private String token;
     private JSONArray buildings = null;
+    private int level = 0;
+    private final Map<Integer, TilesOverlay> customLayers = new HashMap<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,8 +122,75 @@ public class OSMapsActivity extends AppCompatActivity {
 
     protected void addBuildings()
     {
-        MapView mMap = (MapView) findViewById(R.id.map);
+        final Button btnLevelUp = (Button) findViewById(R.id.btnLevelUp);
+        final Button btnLevelDown = (Button) findViewById(R.id.btnLevelDown);
+        final TextView levelText = (TextView) findViewById(R.id.level);
+        final MapView mMap = (MapView) findViewById(R.id.map);
         if (mMap == null || buildings == null) return;
+        //Powiększenie zooma z 18 na 19
+        mMap.setMaxZoomLevel(19);
+        mMap.getTileProvider().setTileSource(new XYTileSource("Mapnik",
+                0, 19, 256, ".png", new String[] {
+                "http://a.tile.openstreetmap.org/",
+                "http://b.tile.openstreetmap.org/",
+                "http://c.tile.openstreetmap.org/" }));
+
+        for (int i = -1; i < 4; i++) {
+            customLayers.put(i, Utilities.CreateTilesOverlay(OSMapsActivity.this, i));
+            mMap.getOverlays().add(customLayers.get(i));
+        }
+        customLayers.get(0).setEnabled(true);
+
+
+        if (btnLevelDown != null) btnLevelDown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                level--;
+                Iterator<TilesOverlay> layers = customLayers.values().iterator();
+                while (layers.hasNext()) layers.next().setEnabled(false);
+                if (customLayers.containsKey(level)) customLayers.get(level).setEnabled(true);
+                levelText.setText(level + "");
+                mMap.invalidate();
+            }
+        });
+        if (btnLevelUp != null) btnLevelUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                level++;
+                Iterator<TilesOverlay> layers = customLayers.values().iterator();
+                while (layers.hasNext()) layers.next().setEnabled(false);
+                if (customLayers.containsKey(level)) customLayers.get(level).setEnabled(true);
+                levelText.setText(level + "");
+                mMap.invalidate();
+            }
+        });
+
+        mMap.setMapListener(new MapListener() {
+            public boolean onZoom(ZoomEvent arg0) {
+                //android.util.Log.i("TAG", "ZOOM: " + arg0.toString());
+                if (btnLevelDown == null || btnLevelUp == null || levelText == null) return false;
+                if (arg0.getZoomLevel() == 19)
+                {
+                    btnLevelDown.setVisibility(View.VISIBLE);
+                    btnLevelUp.setVisibility(View.VISIBLE);
+                    levelText.setVisibility(View.VISIBLE);
+                    level = 0;
+                }
+                else
+                {
+                    btnLevelDown.setVisibility(View.INVISIBLE);
+                    btnLevelUp.setVisibility(View.INVISIBLE);
+                    levelText.setVisibility(View.INVISIBLE);
+                }
+                return false;
+            }
+
+            public boolean onScroll(ScrollEvent arg0) {
+                //android.util.Log.i("TAG", "SCROLL: " + arg0.toString());
+                return false;
+            }
+        } );
+
         final ArrayList<OverlayItem> items = new ArrayList<>();
         for (int i = 0; i < buildings.length(); i++)
         {
