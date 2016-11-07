@@ -1,6 +1,7 @@
 package pl.lodz.p.dmcs.map;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -59,7 +60,6 @@ public class OSMapsActivity extends AppCompatActivity {
         } else {
             initActivity();
         }
-
     }
 
     //Magic code, DO NOT TOUCH!
@@ -118,6 +118,17 @@ public class OSMapsActivity extends AppCompatActivity {
             }
         });
         task.execute(data);
+
+        //Navigate button
+        Button btnNavigate = (Button) findViewById(R.id.btnNavigate);
+        if (btnNavigate != null) btnNavigate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(OSMapsActivity.this, NavigateActivity.class);
+                intent.putExtra("token", token);
+                startActivity(intent);
+            }
+        });
     }
 
     protected void addBuildings()
