@@ -45,6 +45,12 @@ public class Budynki {
     }
 
 
-
-
+    @Override
+    public String toString() {
+        return "Budynki{" +
+                "Nazwa_Obiektu='" + Nazwa_Obiektu + '\'' +
+                ", Long=" + Long +
+                ", Lat=" + Lat +
+                '}';
+    }
 }

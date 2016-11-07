@@ -6,6 +6,8 @@ package pl.lodz.p.dmcs.map;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
@@ -14,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -28,7 +31,9 @@ public class NavigateActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_location_list);
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             token = extras.getString("token");
@@ -61,7 +66,9 @@ public class NavigateActivity extends AppCompatActivity {
     private void setUpListeners(){
 
         if (hints == null) {
+            listaBudynkow = new ArrayList<Budynki>();
             hints = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
+            Log.d("DOOOOOOOG",buildings.toString());
             if (buildings == null) return;
             for (int i = 0; i < buildings.length(); i++) {
                 try {
@@ -70,7 +77,9 @@ public class NavigateActivity extends AppCompatActivity {
                     Double lng = building.getDouble("longitude");
                     String name = building.getString("name");
                     Budynki temp = new Budynki(name, lat, lng);
+                    Log.d("DOOOOOOOG TEMP",temp.toString());
                     listaBudynkow.add(temp);
+
                     hints.add(temp.getNazwa_Obiektu());
                 } catch (JSONException e) {
                     e.printStackTrace();
