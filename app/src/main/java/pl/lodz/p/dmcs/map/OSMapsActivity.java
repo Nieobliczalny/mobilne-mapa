@@ -265,6 +265,8 @@ public class OSMapsActivity extends AppCompatActivity {
                     LoadKmlTask task = new LoadKmlTask();
                     task.setList(customLayers.get(level));
                     task.setMap(mMap);
+                    task.setToken(token);
+                    task.setActivity(OSMapsActivity.this);
                     task.execute("http://mobilne.kjozwiak.ovh/map.php?b=" + building.getInt("id") + "&f=" + level);
                     if (level < minLevel) minLevel = level;
                     if (level > maxLevel) maxLevel = level;
