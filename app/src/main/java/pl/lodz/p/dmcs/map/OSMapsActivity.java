@@ -3,6 +3,7 @@ package pl.lodz.p.dmcs.map;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -20,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.kml.KmlDocument;
+import org.osmdroid.bonuspack.overlays.GroundOverlay;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
@@ -31,7 +33,9 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.TilesOverlay;
+import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,7 +53,8 @@ public class OSMapsActivity extends AppCompatActivity {
     private int minLevel = 0;
     private int maxLevel = 0;
     private final Map<Integer, List<FolderOverlay>> customLayers = new HashMap<>();
-    private ItemizedIconOverlay<OverlayItem> currentLocationOverlay = null;
+    //private ItemizedIconOverlay<OverlayItem> currentLocationOverlay = null;
+    private FolderOverlay currentLocationOverlay = new FolderOverlay();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -245,17 +250,27 @@ public class OSMapsActivity extends AppCompatActivity {
             }
         } );
 
-        final ArrayList<OverlayItem> items = new ArrayList<>();
+        //final ArrayList<OverlayItem> items = new ArrayList<>();
+        //FolderOverlay fo = new FolderOverlay();
         for (int i = 0; i < buildings.length(); i++)
         {
             try {
                 JSONObject building = buildings.getJSONObject(i);
                 android.util.Log.i("XD", building.getDouble("latitude") + " " + building.getDouble("longitude"));
-                OverlayItem myLocationOverlayItem = new OverlayItem(building.getString("name"), building.getString("rating") + " z " + building.getInt("ratingCount") + " głosów", new GeoPoint(building.getDouble("latitude"), building.getDouble("longitude")));
+                /*OverlayItem myLocationOverlayItem = new OverlayItem(building.getString("name"), building.getString("rating") + " z " + building.getInt("ratingCount") + " głosów", new GeoPoint(building.getDouble("latitude"), building.getDouble("longitude")));
                 Drawable myCurrentLocationMarker = getResources().getDrawable(R.drawable.marker);
-                myLocationOverlayItem.setMarker(myCurrentLocationMarker);
+                myLocationOverlayItem.setMarker(myCurrentLocationMarker);*/
+                GeoPoint p = new GeoPoint(building.getDouble("latitude"), building.getDouble("longitude"));
+                Polygon circle = new Polygon(this);
+                circle.setPoints(Polygon.pointsAsCircle(p, 40.0));
+                circle.setFillColor(0x40404040);
+                circle.setStrokeColor(Color.RED);
+                circle.setStrokeWidth(1);
+                circle.setInfoWindow(new CustomInfoWindow(org.osmdroid.bonuspack.R.layout.bonuspack_bubble, mMap, building.getInt("id"), "building", token, this));
+                circle.setTitle(building.getString("name"));
+                circle.setSnippet(building.getString("rating") + " z " + building.getInt("ratingCount") + " głosów");
+                currentLocationOverlay.add(circle);
 
-                items.add(myLocationOverlayItem);
                 JSONArray floors = building.getJSONArray("floors");
                 for (int j = 0; j < floors.length(); j++)
                 {
@@ -277,7 +292,7 @@ public class OSMapsActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
+/*
         currentLocationOverlay = new ItemizedIconOverlay<>(items,
                 new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
                     public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
@@ -288,7 +303,7 @@ public class OSMapsActivity extends AppCompatActivity {
                     public boolean onItemLongPress(final int index, final OverlayItem item) {
                         return true;
                     }
-                }, this);
+                }, this);*/
         mMap.getOverlays().add(currentLocationOverlay);
     }
 

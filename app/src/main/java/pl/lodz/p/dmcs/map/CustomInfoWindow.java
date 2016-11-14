@@ -21,13 +21,13 @@ import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
 
 public class CustomInfoWindow extends BasicInfoWindow {
 
-    public CustomInfoWindow(int layoutResId, MapView mapView, final int id, final String token, final Activity a) {
+    public CustomInfoWindow(int layoutResId, MapView mapView, final int id, final String type, final String token, final Activity a) {
         super(layoutResId, mapView);
 
         this.mView.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent e) {
                 if(e.getAction() == 1) {
-                    android.util.Log.i("TEST", ">" + id + " / " + token);
+                    android.util.Log.i("TEST", ">" + id + " / " + type);
                     CustomInfoWindow.this.close();
                 }
 
@@ -41,7 +41,7 @@ public class CustomInfoWindow extends BasicInfoWindow {
                 if (id > 0) {
                     Intent intent = new Intent(a, ShowRoomActivity.class);
                     intent.putExtra("token", token);
-                    intent.putExtra("type", "room");
+                    intent.putExtra("type", type);
                     intent.putExtra("id", id);
                     a.startActivity(intent);
                 }
