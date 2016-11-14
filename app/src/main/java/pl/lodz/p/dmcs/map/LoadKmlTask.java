@@ -72,8 +72,7 @@ public class LoadKmlTask extends AsyncTask<String, Void, Boolean> {
             for (KmlFeature placemark : placemarks)
             {
                 int id = Integer.parseInt(placemark.mId.split("\\.")[1]);
-                if (id < 0) id = -id;
-                ids.put(placemark.mName, id);
+                if (id < 0) ids.put(placemark.mName, -id);
             }
             for (int i = 0; i < items1.size(); i++)
             {
