@@ -83,8 +83,14 @@ public class LoadKmlTask extends AsyncTask<String, Void, Boolean> {
                         if (items.get(j) instanceof Polygon) {
                             Polygon p = (Polygon) items.get(j);
                             int id = ids.containsKey(p.getTitle()) ? ids.get(p.getTitle()) : 0;
+                            String[] desc = p.getSnippet().split("\\|");
+                            if (desc.length > 1)
+                            {
+                                p.setSnippet(desc[1]);
+                                p.setSubDescription(desc[0]);
+                            }
                             p.setInfoWindow(new CustomInfoWindow(R.layout.bonuspack_bubble, mMap, id, "room", token, activity));
-                            //android.util.Log.i("TEST", p.getTitle() + " / " + p.getSubDescription() + " / " + p.getSnippet());
+                            android.util.Log.i("TEST", p.getTitle() + " / " + p.getSubDescription() + " / " + p.getSnippet() + " / " + desc.length);
                         }
                     }
                 }
