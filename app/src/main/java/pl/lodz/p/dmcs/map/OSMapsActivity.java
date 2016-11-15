@@ -66,6 +66,7 @@ public class OSMapsActivity extends AppCompatActivity {
     private final Map<Integer, List<FolderOverlay>> customLayers = new HashMap<>();
     //private ItemizedIconOverlay<OverlayItem> currentLocationOverlay = null;
     private FolderOverlay currentLocationOverlay = new FolderOverlay();
+    protected List<Overlay> navigationOverlays = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -329,13 +330,9 @@ public class OSMapsActivity extends AppCompatActivity {
         if (btnNavCancel != null) btnNavCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Overlay> overlays = mMap.getOverlays();
-                for (int i = 0; i < overlays.size(); i++)
+                for (int i = 0; i < navigationOverlays.size(); i++)
                 {
-                    if (overlays.get(i) instanceof Polyline)
-                    {
-                        mMap.getOverlays().remove(i);
-                    }
+                    mMap.getOverlays().remove(navigationOverlays.get(i));
                 }
                 mMap.invalidate();
                 v.setVisibility(View.INVISIBLE);
@@ -355,6 +352,7 @@ public class OSMapsActivity extends AppCompatActivity {
                 Integer endRoom = data.hasExtra("endRoom") ? data.getIntExtra("endRoom", 0) : null;
                 GetDirectionsTask gdt = new GetDirectionsTask();
                 gdt.setMap(mMap);
+                gdt.setOverlayContainer(navigationOverlays);
                 gdt.execute(GetDirectionsTask.getDirectionsUrl(startPoint, endPoint));
                 Button btnNavCancel = (Button) findViewById(R.id.btnNavigateCancel);
                 if (btnNavCancel != null) btnNavCancel.setVisibility(View.VISIBLE);

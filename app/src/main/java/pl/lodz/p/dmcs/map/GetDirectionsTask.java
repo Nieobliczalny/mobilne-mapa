@@ -10,6 +10,7 @@ import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.io.BufferedReader;
@@ -28,9 +29,14 @@ import java.util.List;
 
 public class GetDirectionsTask extends AsyncTask<String, Void, String> {
     private MapView mMap = null;
+    private List<Overlay> om = null;
     public void setMap(MapView m)
     {
         mMap = m;
+    }
+    public void setOverlayContainer(List<Overlay> l)
+    {
+        om = l;
     }
 
     // Downloading data in non-ui thread
@@ -92,6 +98,7 @@ public class GetDirectionsTask extends AsyncTask<String, Void, String> {
 
             //Add Route Overlays into map
             mMap.getOverlays().add(roadOverlay);
+            om.add(roadOverlay);
 
             mMap.invalidate();
         } catch (JSONException e) {
