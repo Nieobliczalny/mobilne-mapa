@@ -13,6 +13,11 @@
             android:text="Nawigacja"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+        <Button android:id="@+id/btnNavigateCancel"
+            android:text="Wyłącz nawigację"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible" />
         <Button android:id="@+id/btnLevelUp"
             android:text="+"
             android:layout_width="wrap_content"

@@ -1,6 +1,7 @@
 package pl.lodz.p.dmcs.map;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -22,6 +23,12 @@ import org.json.JSONObject;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.bonuspack.overlays.GroundOverlay;
+import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
+import org.osmdroid.bonuspack.routing.MapQuestRoadManager;
+import org.osmdroid.bonuspack.routing.OSRMRoadManager;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
+import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
@@ -32,8 +39,11 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
+import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.PathOverlay;
 import org.osmdroid.views.overlay.Polygon;
+import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
 
@@ -47,6 +57,7 @@ import java.util.Map;
 
 public class OSMapsActivity extends AppCompatActivity {
     private final static int REQUEST_WRITE_STORAGE = 1;
+    public final static int ACTIVITY_NAVIGATE_REQUEST_CODE = 2;
     private String token;
     private JSONArray buildings = null;
     private int level = 0;
@@ -138,7 +149,7 @@ public class OSMapsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(OSMapsActivity.this, NavigateActivity.class);
                 intent.putExtra("token", token);
-                startActivity(intent);
+                startActivityForResult(intent, ACTIVITY_NAVIGATE_REQUEST_CODE);
             }
         });
     }
@@ -305,6 +316,53 @@ public class OSMapsActivity extends AppCompatActivity {
                     }
                 }, this);*/
         mMap.getOverlays().add(currentLocationOverlay);
+        /*try {
+            //addRouteOverlay(new GeoPoint(19.45376900, 51.75269400), new GeoPoint(19.45596900, 51.74705900));
+            GetDirectionsTask gdt = new GetDirectionsTask();
+            gdt.setMap(mMap);
+            gdt.execute(GetDirectionsTask.getDirectionsUrl(new GeoPoint(19.45376900, 51.75269400), new GeoPoint(19.45596900, 51.74705900)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }*/
+        Button btnNavCancel = (Button) findViewById(R.id.btnNavigateCancel);
+        if (btnNavCancel != null) btnNavCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Overlay> overlays = mMap.getOverlays();
+                for (int i = 0; i < overlays.size(); i++)
+                {
+                    if (overlays.get(i) instanceof Polyline)
+                    {
+                        mMap.getOverlays().remove(i);
+                    }
+                }
+                mMap.invalidate();
+                v.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == ACTIVITY_NAVIGATE_REQUEST_CODE) {
+            if(resultCode == Activity.RESULT_OK){
+                final MapView mMap = (MapView) findViewById(R.id.map);
+                GeoPoint startPoint = new GeoPoint(data.getDoubleExtra("startLat", 0.0), data.getDoubleExtra("startLng", 0.0));
+                GeoPoint endPoint = new GeoPoint(data.getDoubleExtra("endLat", 0.0), data.getDoubleExtra("endLng", 0.0));
+                Integer startRoom = data.hasExtra("startRoom") ? data.getIntExtra("startRoom", 0) : null;
+                Integer endRoom = data.hasExtra("endRoom") ? data.getIntExtra("endRoom", 0) : null;
+                GetDirectionsTask gdt = new GetDirectionsTask();
+                gdt.setMap(mMap);
+                gdt.execute(GetDirectionsTask.getDirectionsUrl(startPoint, endPoint));
+                Button btnNavCancel = (Button) findViewById(R.id.btnNavigateCancel);
+                if (btnNavCancel != null) btnNavCancel.setVisibility(View.VISIBLE);
+            }
+            //if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            //}
+        }
     }
 
     @Override
@@ -334,5 +392,69 @@ public class OSMapsActivity extends AppCompatActivity {
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    public void addRouteOverlay(GeoPoint startPoint, GeoPoint endPoint)
+    {
+        final MapView mMap = (MapView) findViewById(R.id.map);
+        //1 Routing via road manager
+        RoadManager roadManager = new MapQuestRoadManager("sLxBDYPmotx36lpYmaqWkS0uuG3uVmnF");//new GraphHopperRoadManager("716c4886-f241-4a2c-a23d-b9b0c49174a1", false);//new MapQuestRoadManager("_YOUR MAPQUEST API KEY_");//new OSRMRoadManager(this);
+        roadManager.addRequestOption("routeType=pedestrian");
+
+        //Then, retreive the road between your start and end point:
+        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+        waypoints.add(startPoint);
+        waypoints.add(endPoint); //end point
+
+        Road road = roadManager.getRoad(waypoints);
+
+        // then, build an overlay with the route shape:
+        Polyline roadOverlay = RoadManager.buildRoadOverlay(road);//, mMap.getContext());
+        roadOverlay.setColor(Color.GREEN);
+
+
+        //Add Route Overlays into map
+        mMap.getOverlays().add(roadOverlay);
+
+        mMap.invalidate();//refesh map
+/*
+        Drawable    marker = getResources().getDrawable(R.drawable.marker);
+
+        final ArrayList<OverlayItem> roadItems =
+                new ArrayList<OverlayItem>();
+        //ItemizedOverlayWithBubble<OverlayItem> roadNodes =
+        //        new ItemizedOverlayWithBubble<OverlayItem>(this, roadItems, mMap);
+        ArrayList<OverlayItem> roadNodes = new ArrayList<>();
+
+
+        for (int i=0; i<road.mNodes.size(); i++)
+        {
+            RoadNode node = road.mNodes.get(i);
+            OverlayItem nodeMarker = new OverlayItem("Step "+i, "", node.mLocation);
+            nodeMarker.setMarkerHotspot(OverlayItem.HotspotPlace.CENTER);
+            nodeMarker.setMarker(marker);
+            roadNodes.add(nodeMarker);
+
+            //nodeMarker.setDescription(node.mInstructions);
+            //nodeMarker.setSubDescription(road.getLengthDurationText(node.mLength, node.mDuration));
+            Drawable icon = getResources().getDrawable(R.drawable.marker);
+            nodeMarker.setMarker(icon);
+            android.util.Log.i(">>>TEST", node.mInstructions);
+        }//end for
+
+        mMap.getOverlays().add(new ItemizedIconOverlay<>(roadNodes,
+                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
+                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
+                        //Toast alert = Toast.makeText(OSMapsActivity.this, item.getTitle() + ": " + item.getSnippet(), Toast.LENGTH_SHORT);
+                        //alert.show();
+                        return true;
+                    }
+                    public boolean onItemLongPress(final int index, final OverlayItem item) {
+                        return true;
+                    }
+                }, this));
+
+
+        */
     }
 }
