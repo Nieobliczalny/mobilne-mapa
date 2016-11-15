@@ -15,6 +15,7 @@ import org.osmdroid.views.overlay.Polygon;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -28,6 +29,7 @@ public class LoadKmlTask extends AsyncTask<String, Void, Boolean> {
     private boolean isOverlayEnabled = false;
     private Activity activity = null;
     private String token = "";
+    private Map<Integer, Overlay> om = null;
     public void setActivity(Activity a)
     {
         activity = a;
@@ -43,6 +45,10 @@ public class LoadKmlTask extends AsyncTask<String, Void, Boolean> {
     public void setList(List<FolderOverlay> l)
     {
         list = l;
+    }
+    public void setOverlayContainer(Map<Integer, Overlay> l)
+    {
+        om = l;
     }
     public void setOverlayEnabled(boolean e)
     {
@@ -90,6 +96,7 @@ public class LoadKmlTask extends AsyncTask<String, Void, Boolean> {
                                 p.setSubDescription(desc[0]);
                             }
                             p.setInfoWindow(new CustomInfoWindow(R.layout.bonuspack_bubble, mMap, id, "room", token, activity));
+                            if (id > 0) om.put(id, p);
                             android.util.Log.i("TEST", p.getTitle() + " / " + p.getSubDescription() + " / " + p.getSnippet() + " / " + desc.length);
                         }
                     }

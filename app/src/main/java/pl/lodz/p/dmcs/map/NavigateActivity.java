@@ -114,14 +114,24 @@ public class NavigateActivity extends AppCompatActivity {
                     Intent returnIntent = new Intent();
                     GeoPoint startPoint = new GeoPoint(19.45376900, 51.75269400);
                     GeoPoint endPoint = new GeoPoint(19.45596900, 51.74705900);
-                    Integer startRoom = null;
-                    Integer endRoom = 6;
+                    Integer startRoom = 6;
+                    Integer endRoom = 91;
+                    Integer startLevel = 0;
+                    Integer endLevel = 4;
                     returnIntent.putExtra("startLat",startPoint.getLatitude());
                     returnIntent.putExtra("startLng",startPoint.getLongitude());
                     returnIntent.putExtra("endLat",endPoint.getLatitude());
                     returnIntent.putExtra("endLng",endPoint.getLongitude());
-                    if (startRoom != null) returnIntent.putExtra("startRoom",startRoom);
-                    if (endRoom != null) returnIntent.putExtra("endRoom",endRoom);
+                    if (startRoom != null)
+                    {
+                        returnIntent.putExtra("startRoom",startRoom);
+                        returnIntent.putExtra("startLevel",startLevel);
+                    }
+                    if (endRoom != null)
+                    {
+                        returnIntent.putExtra("endRoom",endRoom);
+                        returnIntent.putExtra("endLevel",endLevel);
+                    }
                     setResult(Activity.RESULT_OK,returnIntent);
                     finish();
                 }
