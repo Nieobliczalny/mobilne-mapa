@@ -32,7 +32,8 @@
         <activity android:name=".OSMapsActivity" />
         <activity android:name=".FloorsActivity" />
         <activity android:name=".NavigateActivity" />
-        <activity android:name=".ShowRoomActivity"></activity>
+        <activity android:name=".ShowRoomActivity" />
+        <activity android:name=".SearchRoomActivity"></activity>
     </application>
 
 </manifest>

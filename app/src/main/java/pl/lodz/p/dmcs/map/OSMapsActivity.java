@@ -59,6 +59,7 @@ import java.util.Set;
 public class OSMapsActivity extends AppCompatActivity {
     private final static int REQUEST_WRITE_STORAGE = 1;
     public final static int ACTIVITY_NAVIGATE_REQUEST_CODE = 2;
+    public final static int ACTIVITY_SEARCH_REQUEST_CODE = 3;
     private String token;
     private JSONArray buildings = null;
     private int level = 0;
@@ -341,6 +342,7 @@ public class OSMapsActivity extends AppCompatActivity {
                             List<FolderOverlay> layerData = customLayers.get(layer);
                             if (layerData.contains(navigationOverlays.get(i))) layerData.remove(navigationOverlays.get(i));
                         }
+                        if (currentLocationOverlay.getItems().contains(navigationOverlays.get(i))) currentLocationOverlay.getItems().remove(navigationOverlays.get(i));
                     }
                     mMap.getOverlays().remove(navigationOverlays.get(i));
                 }
@@ -348,6 +350,17 @@ public class OSMapsActivity extends AppCompatActivity {
                 v.setVisibility(View.GONE);
                 Button btnNav = (Button) findViewById(R.id.btnNavigate);
                 if (btnNav != null) btnNav.setVisibility(View.VISIBLE);
+                Button btnSearch = (Button) findViewById(R.id.btnSearch);
+                if (btnSearch != null) btnSearch.setVisibility(View.VISIBLE);
+            }
+        });
+        Button btnSearch = (Button) findViewById(R.id.btnSearch);
+        if (btnSearch != null) btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(OSMapsActivity.this, SearchRoomActivity.class);
+                intent.putExtra("token", token);
+                startActivityForResult(intent, ACTIVITY_SEARCH_REQUEST_CODE);
             }
         });
     }
@@ -409,9 +422,69 @@ public class OSMapsActivity extends AppCompatActivity {
                 if (btnNavCancel != null) btnNavCancel.setVisibility(View.VISIBLE);
                 Button btnNav = (Button) findViewById(R.id.btnNavigate);
                 if (btnNav != null) btnNav.setVisibility(View.GONE);
+                Button btnSearch = (Button) findViewById(R.id.btnSearch);
+                if (btnSearch != null) btnSearch.setVisibility(View.GONE);
             }
             //if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
+            //Write your code if there's no result
+            //}
+        }
+        if (requestCode == ACTIVITY_SEARCH_REQUEST_CODE) {
+            if(resultCode == Activity.RESULT_OK){
+                final MapView mMap = (MapView) findViewById(R.id.map);
+                if (mMap == null) return;
+                Integer searchID = data.hasExtra("searchID") ? data.getIntExtra("searchID", 0) : null;
+                Integer searchLevel = data.hasExtra("searchLevel") ? data.getIntExtra("searchLevel", 0) : null;
+                Double searchLat = data.hasExtra("searchLat") ? data.getDoubleExtra("searchLat", 0.0) : null;
+                Double searchLng = data.hasExtra("searchLng") ? data.getDoubleExtra("searchLng", 0.0) : null;
+
+                if (searchLat != null && searchLng != null)
+                {
+                    GeoPoint p = new GeoPoint(searchLat, searchLng);
+                    Polygon circle = new Polygon(this);
+                    circle.setPoints(Polygon.pointsAsCircle(p, 40.0));
+                    circle.setFillColor(0x40404040);
+                    circle.setStrokeColor(Color.GREEN);
+                    circle.setStrokeWidth(1);
+                    circle.setInfoWindow(null);
+
+                    FolderOverlay fo = new FolderOverlay();
+                    fo.add(circle);
+                    if (mMap.getZoomLevel() >= 19) fo.setEnabled(false);
+
+                    currentLocationOverlay.add(fo);
+                    mMap.getOverlays().add(fo);
+                    navigationOverlays.add(fo);
+
+                    mMap.invalidate();
+                }
+                if (searchID != null && searchLevel != null && insideOverlays.containsKey(searchID))
+                {
+                    Polygon o = (Polygon) insideOverlays.get(searchID);
+                    Road road = new Road((ArrayList<GeoPoint>) o.getPoints());
+                    // then, build an overlay with the route shape:
+                    Polyline roadOverlay = RoadManager.buildRoadOverlay(road);//, mMap.getContext());
+                    roadOverlay.setColor(Color.RED);
+                    FolderOverlay fo = new FolderOverlay();
+                    fo.add(roadOverlay);
+                    if (level != searchLevel || mMap.getZoomLevel() < 19) fo.setEnabled(false);
+
+                    //Add Route Overlays into map
+                    customLayers.get(searchLevel).add(fo);
+                    mMap.getOverlays().add(fo);
+                    navigationOverlays.add(fo);
+
+                    mMap.invalidate();
+                }
+                Button btnNavCancel = (Button) findViewById(R.id.btnNavigateCancel);
+                if (btnNavCancel != null) btnNavCancel.setVisibility(View.VISIBLE);
+                Button btnNav = (Button) findViewById(R.id.btnNavigate);
+                if (btnNav != null) btnNav.setVisibility(View.GONE);
+                Button btnSearch = (Button) findViewById(R.id.btnSearch);
+                if (btnSearch != null) btnSearch.setVisibility(View.GONE);
+            }
+            //if (resultCode == Activity.RESULT_CANCELED) {
+            //Write your code if there's no result
             //}
         }
     }

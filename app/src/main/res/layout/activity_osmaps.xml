@@ -9,12 +9,16 @@
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
+        <Button android:id="@+id/btnSearch"
+            android:text="S"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
         <Button android:id="@+id/btnNavigate"
             android:text="Nawigacja"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <Button android:id="@+id/btnNavigateCancel"
-            android:text="Wyłącz nawigację"
+            android:text="Ukryj nakładki"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone" />
