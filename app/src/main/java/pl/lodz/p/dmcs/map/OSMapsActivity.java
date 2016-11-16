@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -147,7 +148,7 @@ public class OSMapsActivity extends AppCompatActivity {
         task.execute(data);
 
         //Navigate button
-        Button btnNavigate = (Button) findViewById(R.id.btnNavigate);
+        ImageButton btnNavigate = (ImageButton) findViewById(R.id.btnNavigate);
         if (btnNavigate != null) btnNavigate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -160,8 +161,8 @@ public class OSMapsActivity extends AppCompatActivity {
 
     protected void addBuildings()
     {
-        final Button btnLevelUp = (Button) findViewById(R.id.btnLevelUp);
-        final Button btnLevelDown = (Button) findViewById(R.id.btnLevelDown);
+        final ImageButton btnLevelUp = (ImageButton) findViewById(R.id.btnLevelUp);
+        final ImageButton btnLevelDown = (ImageButton) findViewById(R.id.btnLevelDown);
         final TextView levelText = (TextView) findViewById(R.id.level);
         final MapView mMap = (MapView) findViewById(R.id.map);
         if (mMap == null || buildings == null) return;
@@ -330,7 +331,7 @@ public class OSMapsActivity extends AppCompatActivity {
             e.printStackTrace();
             throw e;
         }*/
-        Button btnNavCancel = (Button) findViewById(R.id.btnNavigateCancel);
+        ImageButton btnNavCancel = (ImageButton) findViewById(R.id.btnNavigateCancel);
         if (btnNavCancel != null) btnNavCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -348,13 +349,13 @@ public class OSMapsActivity extends AppCompatActivity {
                 }
                 mMap.invalidate();
                 v.setVisibility(View.GONE);
-                Button btnNav = (Button) findViewById(R.id.btnNavigate);
+                ImageButton btnNav = (ImageButton) findViewById(R.id.btnNavigate);
                 if (btnNav != null) btnNav.setVisibility(View.VISIBLE);
-                Button btnSearch = (Button) findViewById(R.id.btnSearch);
+                ImageButton btnSearch = (ImageButton) findViewById(R.id.btnSearch);
                 if (btnSearch != null) btnSearch.setVisibility(View.VISIBLE);
             }
         });
-        Button btnSearch = (Button) findViewById(R.id.btnSearch);
+        ImageButton btnSearch = (ImageButton) findViewById(R.id.btnSearch);
         if (btnSearch != null) btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -418,11 +419,11 @@ public class OSMapsActivity extends AppCompatActivity {
 
                     mMap.invalidate();
                 }
-                Button btnNavCancel = (Button) findViewById(R.id.btnNavigateCancel);
+                ImageButton btnNavCancel = (ImageButton) findViewById(R.id.btnNavigateCancel);
                 if (btnNavCancel != null) btnNavCancel.setVisibility(View.VISIBLE);
-                Button btnNav = (Button) findViewById(R.id.btnNavigate);
+                ImageButton btnNav = (ImageButton) findViewById(R.id.btnNavigate);
                 if (btnNav != null) btnNav.setVisibility(View.GONE);
-                Button btnSearch = (Button) findViewById(R.id.btnSearch);
+                ImageButton btnSearch = (ImageButton) findViewById(R.id.btnSearch);
                 if (btnSearch != null) btnSearch.setVisibility(View.GONE);
             }
             //if (resultCode == Activity.RESULT_CANCELED) {
@@ -464,7 +465,7 @@ public class OSMapsActivity extends AppCompatActivity {
                     Road road = new Road((ArrayList<GeoPoint>) o.getPoints());
                     // then, build an overlay with the route shape:
                     Polyline roadOverlay = RoadManager.buildRoadOverlay(road);//, mMap.getContext());
-                    roadOverlay.setColor(Color.RED);
+                    roadOverlay.setColor(Color.GREEN);
                     FolderOverlay fo = new FolderOverlay();
                     fo.add(roadOverlay);
                     if (level != searchLevel || mMap.getZoomLevel() < 19) fo.setEnabled(false);
@@ -476,11 +477,11 @@ public class OSMapsActivity extends AppCompatActivity {
 
                     mMap.invalidate();
                 }
-                Button btnNavCancel = (Button) findViewById(R.id.btnNavigateCancel);
+                ImageButton btnNavCancel = (ImageButton) findViewById(R.id.btnNavigateCancel);
                 if (btnNavCancel != null) btnNavCancel.setVisibility(View.VISIBLE);
-                Button btnNav = (Button) findViewById(R.id.btnNavigate);
+                ImageButton btnNav = (ImageButton) findViewById(R.id.btnNavigate);
                 if (btnNav != null) btnNav.setVisibility(View.GONE);
-                Button btnSearch = (Button) findViewById(R.id.btnSearch);
+                ImageButton btnSearch = (ImageButton) findViewById(R.id.btnSearch);
                 if (btnSearch != null) btnSearch.setVisibility(View.GONE);
             }
             //if (resultCode == Activity.RESULT_CANCELED) {
