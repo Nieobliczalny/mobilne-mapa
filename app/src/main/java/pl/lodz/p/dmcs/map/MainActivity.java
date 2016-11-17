@@ -1,12 +1,15 @@
 package pl.lodz.p.dmcs.map;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -16,12 +19,21 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
     protected Context ctx;
     protected String token = "";
+    private final static int MENU_ACTIVITY_REQUEST_CODE = 10;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         ctx = this;
+        SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+        token = sharedPref.getString("loginToken", "");
+        if (!token.equalsIgnoreCase(""))
+        {
+            Intent intent = new Intent(MainActivity.this, MainMenuActivity.class);
+            intent.putExtra("token", token);
+            startActivityForResult(intent, MENU_ACTIVITY_REQUEST_CODE);
+        }
         Button loginBtn = (Button) findViewById(R.id.btnLogIn);
         if (loginBtn != null) loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,6 +55,14 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(final JSONObject obj) {
                         try {
                             if (obj.has("token")) token = obj.getString("token");
+                            CheckBox saveLogin = (CheckBox) findViewById(R.id.saveToken);
+                            if (saveLogin != null && saveLogin.isChecked())
+                            {
+                                SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString("loginToken", token);
+                                editor.commit();
+                            }
                         } catch (JSONException ex){
                             ex.printStackTrace();
                         }
@@ -52,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
                                 try {
                                     Toast t = Toast.makeText(ctx, "Welcome " + obj.getString("nick") + "!", Toast.LENGTH_SHORT);
                                     t.show();
-                                    Intent intent = new Intent(MainActivity.this, OSMapsActivity.class);
+                                    Intent intent = new Intent(MainActivity.this, MainMenuActivity.class);
                                     intent.putExtra("token", token);
-                                    startActivity(intent);
+                                    startActivityForResult(intent, MENU_ACTIVITY_REQUEST_CODE);
                                 } catch (JSONException ex){
                                     ex.printStackTrace();
                                 }
@@ -107,5 +127,22 @@ public class MainActivity extends AppCompatActivity {
                 task.execute(data);
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == MENU_ACTIVITY_REQUEST_CODE) {
+            if(resultCode != Activity.RESULT_OK){
+                finish();
+            }
+            else
+            {
+                SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.remove("loginToken");
+                editor.commit();
+            }
+        }
     }
 }

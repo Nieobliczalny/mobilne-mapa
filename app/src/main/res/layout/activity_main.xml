@@ -24,8 +24,8 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/textView"
-        android:layout_toRightOf="@+id/textView" />
+        android:layout_toEndOf="@+id/textView5"
+        android:layout_toRightOf="@+id/textView5" />
 
     <TextView
         android:text="Hasło: "
@@ -45,89 +45,85 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:id="@+id/pass"
-        android:layout_toRightOf="@+id/textView"
-        android:layout_toEndOf="@+id/textView" />
+        android:layout_toEndOf="@+id/textView5"
+        android:layout_toRightOf="@+id/textView5" />
+
+    <CheckBox
+        android:text="Zachowaj dane logowania"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/saveToken"
+        android:layout_below="@+id/pass"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:text="Zaloguj się"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/pass"
+        android:id="@+id/btnLogIn"
+        android:layout_below="@+id/saveToken"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/btnLogIn"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:text="Nie masz konta? Utwórz je!"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView3"
-        android:layout_below="@+id/btnLogIn"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:text="E-mail: "
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textView3"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/textView8" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
         android:ems="10"
+        android:id="@+id/emailNew"
         android:layout_below="@+id/textView3"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:id="@+id/emailNew"
         android:layout_toRightOf="@+id/textView8"
         android:layout_toEndOf="@+id/textView8" />
 
     <TextView
-        android:text="Hasło: "
+        android:text="E-mail: "
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/emailNew"
+        android:id="@+id/textView8"
+        android:layout_alignBaseline="@+id/emailNew"
+        android:layout_alignBottom="@+id/emailNew"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/textView9" />
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:ems="10"
+        android:id="@+id/passNew"
         android:layout_below="@+id/emailNew"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:id="@+id/passNew"
-        android:layout_alignLeft="@+id/emailNew"
-        android:layout_alignStart="@+id/emailNew" />
+        android:layout_toRightOf="@+id/textView9"
+        android:layout_toEndOf="@+id/textView9" />
 
     <TextView
-        android:text="Nick: "
+        android:text="Hasło: "
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/passNew"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/textView11" />
+        android:id="@+id/textView9"
+        android:layout_alignBaseline="@+id/passNew"
+        android:layout_alignBottom="@+id/passNew"
+        android:layout_toLeftOf="@+id/emailNew"
+        android:layout_toStartOf="@+id/emailNew" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:ems="10"
+        android:id="@+id/nickNew"
         android:layout_below="@+id/passNew"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:id="@+id/nickNew"
+        android:layout_toEndOf="@+id/textView11"
         android:layout_alignLeft="@+id/passNew"
         android:layout_alignStart="@+id/passNew" />
 
@@ -135,10 +131,29 @@
         android:text="Utwórz konto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/nickNew"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:id="@+id/btnRegister"
+        android:layout_below="@+id/nickNew"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="Nick: "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView11"
+        android:layout_alignBaseline="@+id/nickNew"
+        android:layout_alignBottom="@+id/nickNew"
+        android:layout_toLeftOf="@+id/passNew"
+        android:layout_toStartOf="@+id/passNew" />
+
+    <TextView
+        android:text="Nie masz konta? Utwórz je!"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView3"
+        android:layout_below="@+id/btnLogIn"
+        android:layout_alignLeft="@+id/textView11"
+        android:layout_alignStart="@+id/textView11" />
 </RelativeLayout>

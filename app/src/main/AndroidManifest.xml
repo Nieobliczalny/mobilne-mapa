@@ -33,7 +33,8 @@
         <activity android:name=".FloorsActivity" />
         <activity android:name=".NavigateActivity" />
         <activity android:name=".ShowRoomActivity" />
-        <activity android:name=".SearchRoomActivity"></activity>
+        <activity android:name=".SearchRoomActivity" />
+        <activity android:name=".MainMenuActivity"></activity>
     </application>
 
 </manifest>
