@@ -33,8 +33,8 @@ import java.util.List;
 
 public class NavigateActivity extends AppCompatActivity {
 
-    private static ArrayAdapter<String> hintsBuilding = null;
-    private static ArrayAdapter<String> hintsRooms = null;
+    private ArrayAdapter<String> hintsBuilding = null;
+    private ArrayAdapter<String> hintsRooms = null;
     protected String token = "";
     private List<Budynki> listaBudynkow = null;
     private JSONArray buildings = null;
