@@ -35,7 +35,8 @@
         <activity android:name=".ShowRoomActivity" />
         <activity android:name=".SearchRoomActivity" />
         <activity android:name=".MainMenuActivity" />
-        <activity android:name=".ListActivity"></activity>
+        <activity android:name=".ListActivity" />
+        <activity android:name=".ShowUserActivity"></activity>
     </application>
 
 </manifest>
