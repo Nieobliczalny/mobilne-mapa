@@ -75,7 +75,6 @@
         android:id="@+id/search_sala_z"
         android:layout_row="3"
         android:layout_column="1"
-        android:hint="    Sala"
         android:layout_columnSpan="21"
         android:layout_gravity="fill_horizontal"
         android:inputType="text"
@@ -84,6 +83,7 @@
         android:layout_alignParentEnd="true"
         android:layout_toRightOf="@+id/sala_z"
         android:layout_toEndOf="@+id/sala_z"
+
 
         />
 
@@ -106,7 +106,6 @@
         android:id="@+id/search_sala_do"
         android:layout_row="3"
         android:layout_column="1"
-        android:hint="    Sala"
         android:layout_columnSpan="21"
         android:layout_gravity="fill_horizontal"
         android:inputType="text"
