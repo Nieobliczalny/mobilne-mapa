@@ -1,5 +1,7 @@
 package pl.lodz.p.dmcs.map;
 
+import java.util.ArrayList;
+
 /**
  * Created by emicgaj on 2016-11-05.
  */
@@ -11,11 +13,13 @@ public class Budynki {
     private String Nazwa_Obiektu;
     private double Long;
     private double Lat;
+    private ArrayList<Floor> floors;
 
-    public Budynki(String nazwa_Obiektu, double lat, double aLong) {
-        Long = aLong;
+    public Budynki(String nazwa_Obiektu, double aLong, double lat, ArrayList<Floor> floors) {
         Nazwa_Obiektu = nazwa_Obiektu;
+        Long = aLong;
         Lat = lat;
+        this.floors = floors;
     }
 
     public String getNazwa_Obiektu() {
@@ -34,8 +38,6 @@ public class Budynki {
         Long = aLong;
     }
 
-
-
     public double getLat() {
         return Lat;
     }
@@ -44,6 +46,9 @@ public class Budynki {
         Lat = lat;
     }
 
+    public ArrayList<Floor> getFloors() { return floors; }
+
+    public void setFloors(ArrayList<Floor> floors) { this.floors = floors; }
 
     @Override
     public String toString() {
@@ -51,6 +56,7 @@ public class Budynki {
                 "Nazwa_Obiektu='" + Nazwa_Obiektu + '\'' +
                 ", Long=" + Long +
                 ", Lat=" + Lat +
+                ", floors=" + floors +
                 '}';
     }
 }
