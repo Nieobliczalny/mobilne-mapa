@@ -34,9 +34,9 @@ public class MainMenuActivity extends AppCompatActivity {
         if (btnList != null) btnList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainMenuActivity.this, OSMapsActivity.class);
+                Intent intent = new Intent(MainMenuActivity.this, ListActivity.class);
                 intent.putExtra("token", token);
-                //startActivity(intent);
+                startActivity(intent);
             }
         });
 
