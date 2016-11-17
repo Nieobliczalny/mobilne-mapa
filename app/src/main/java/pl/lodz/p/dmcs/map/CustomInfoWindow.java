@@ -34,6 +34,7 @@ public class CustomInfoWindow extends BasicInfoWindow {
                 return true;
             }
         });
+
         TextView title = (TextView) this.mView.findViewById(R.id.bubble_title);
         if (title != null) title.setOnClickListener(new View.OnClickListener() {
             @Override
