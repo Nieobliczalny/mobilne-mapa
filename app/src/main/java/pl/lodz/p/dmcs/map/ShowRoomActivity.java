@@ -2,12 +2,14 @@ package pl.lodz.p.dmcs.map;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -22,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.concurrent.RunnableFuture;
 
 public class ShowRoomActivity extends AppCompatActivity {
     private String token;
@@ -35,6 +38,7 @@ public class ShowRoomActivity extends AppCompatActivity {
     private EditText editText = null;
     private ArrayAdapter<String> mAdapter;
     private final ArrayList<String> list = new ArrayList<>();
+    private final ArrayList<Integer> userIDs = new ArrayList<>();
     private int current_rating = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +74,16 @@ public class ShowRoomActivity extends AppCompatActivity {
                 }
             }
         });
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(ShowRoomActivity.this, ShowUserActivity.class);
+                intent.putExtra("token", token);
+                intent.putExtra("id", userIDs.get(i));
+                startActivity(intent);
+            }
+
+        });
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 sendComment();
@@ -79,7 +93,8 @@ public class ShowRoomActivity extends AppCompatActivity {
 
         JSONObject data = new JSONObject();
         try {
-            data.put("action", "getBuildingById");
+            if (type.equalsIgnoreCase("building")) data.put("action", "getBuildingById");
+            else data.put("action", "getRoomById");
             data.put("id", id);
             data.put("token", token);
         } catch (Exception e){
@@ -113,7 +128,8 @@ public class ShowRoomActivity extends AppCompatActivity {
             data.put("token", token);
             data.put("type", type);
             data.put("comment", editText.getText());
-            data.put("rating", (int) ratingBar.getRating());
+            data.put("rating", Math.floor(ratingBar.getRating()));
+            android.util.Log.i("DDD", data.toString());
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -123,14 +139,21 @@ public class ShowRoomActivity extends AppCompatActivity {
         task.setResponseListener(new JsonResponseListener() {
             @Override
             public void onResponse(final JSONObject comment) {
-                try {
-                    list.add(comment.getString("text") + "\n" + "By --" +comment.getString("author_nick"));
-                    current_rating = comment.getInt("total_ranking");
-                    ratingBar.setRating(current_rating);///////////////////////
-                    ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        android.util.Log.i("TAG", comment.toString());
+                        list.add(comment.getString("text") + "\n" + "By --" +comment.getString("author_nick"));
+                        userIDs.add(comment.getInt("author"));
+                        current_rating = comment.getInt("total_ranking");
+                        ratingBar.setRating((float)current_rating);///////////////////////
+                        ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
+            });
             }
         });
         task.execute(data);
@@ -146,6 +169,7 @@ public class ShowRoomActivity extends AppCompatActivity {
         for(int i = 0; i < commentList.length(); i++){
             JSONObject comment = (JSONObject) commentList.get(i);
             list.add(comment.getString("text") + "\n" + "By --" +comment.getString("author_nick"));
+            userIDs.add(comment.getInt("author"));
         }
         mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
 
