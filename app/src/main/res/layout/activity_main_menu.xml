@@ -32,6 +32,12 @@
         android:id="@+id/btnList" />
 
     <Button
+        android:text="Dodaj budynek"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnAddBuilding" />
+
+    <Button
         android:text="Administracja"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

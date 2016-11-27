@@ -38,7 +38,8 @@
         <activity android:name=".ListActivity" />
         <activity android:name=".ShowUserActivity" />
         <activity android:name=".AdminActivity" />
-        <activity android:name=".AdminMapsActivity"></activity>
+        <activity android:name=".AdminMapsActivity" />
+        <activity android:name=".AddBuildingActivity"></activity>
     </application>
 
 </manifest>

@@ -87,5 +87,15 @@ public class MainMenuActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        Button btnAddBuilding = (Button) findViewById(R.id.btnAddBuilding);
+        if (btnAddBuilding != null) btnAddBuilding.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainMenuActivity.this, AddBuildingActivity.class);
+                intent.putExtra("token", token);
+                startActivity(intent);
+            }
+        });
     }
 }
