@@ -32,8 +32,16 @@
         android:id="@+id/btnList" />
 
     <Button
+        android:text="Administracja"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnAdmin"
+        android:visibility="gone" />
+
+    <Button
         android:text="Wyloguj"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/btnLogout" />
+
 </LinearLayout>
