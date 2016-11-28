@@ -12,6 +12,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -74,6 +77,9 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
     private FolderOverlay currentLocationOverlay = new FolderOverlay();
     protected List<Overlay> navigationOverlays = new ArrayList<>();
     protected Map<Integer, Overlay> insideOverlays = new HashMap<>();
+
+    protected boolean isSpecialOverlayOpened = false;
+    protected boolean isAdmin = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,6 +157,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
         task.execute(data);
 
         //Navigate button
+        /*
         ImageButton btnNavigate = (ImageButton) findViewById(R.id.btnNavigate);
         if (btnNavigate != null) btnNavigate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,13 +167,14 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 startActivityForResult(intent, ACTIVITY_NAVIGATE_REQUEST_CODE);
             }
         });
+        */
     }
 
     protected void addBuildings()
     {
         final ImageButton btnLevelUp = (ImageButton) findViewById(R.id.btnLevelUp);
         final ImageButton btnLevelDown = (ImageButton) findViewById(R.id.btnLevelDown);
-        final TextView levelText = (TextView) findViewById(R.id.level);
+        final Button levelText = (Button) findViewById(R.id.level);
         final MapView mMap = (MapView) findViewById(R.id.map);
         if (mMap == null || buildings == null) return;
         //Powiększenie zooma z 18 na 21
@@ -334,6 +342,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
             e.printStackTrace();
             throw e;
         }*/
+        /*
         ImageButton btnNavCancel = (ImageButton) findViewById(R.id.btnNavigateCancel);
         if (btnNavCancel != null) btnNavCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -358,6 +367,8 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 if (btnSearch != null) btnSearch.setVisibility(View.VISIBLE);
             }
         });
+        */
+        /*
         ImageButton btnSearch = (ImageButton) findViewById(R.id.btnSearch);
         if (btnSearch != null) btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -367,6 +378,33 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 startActivityForResult(intent, ACTIVITY_SEARCH_REQUEST_CODE);
             }
         });
+        */
+
+        //Sprawdzam, czy jestem Adminem
+        JSONObject data = new JSONObject();
+        try {
+            data.put("action", "getAdmins");
+            data.put("token", token);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        SendPostTask task = new SendPostTask();
+        task.setActivity(OSMapsActivity.this);
+        task.setResponseListener(new JsonResponseListener() {
+            @Override
+            public void onResponse(final JSONObject obj) {
+                try {
+                    if (obj.getJSONArray("data").length() > 0) {
+                        isAdmin = true;
+                        invalidateOptionsMenu();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        task.execute(data);
         //Ukrywanie wszystkich CustomInfoWindow po kliknieciu na mape
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(this, this);
         mMap.getOverlays().add(0, mapEventsOverlay);
@@ -425,12 +463,16 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
 
                     mMap.invalidate();
                 }
+                isSpecialOverlayOpened = true;
+                invalidateOptionsMenu();
+                /*
                 ImageButton btnNavCancel = (ImageButton) findViewById(R.id.btnNavigateCancel);
                 if (btnNavCancel != null) btnNavCancel.setVisibility(View.VISIBLE);
                 ImageButton btnNav = (ImageButton) findViewById(R.id.btnNavigate);
                 if (btnNav != null) btnNav.setVisibility(View.GONE);
                 ImageButton btnSearch = (ImageButton) findViewById(R.id.btnSearch);
                 if (btnSearch != null) btnSearch.setVisibility(View.GONE);
+                */
             }
             //if (resultCode == Activity.RESULT_CANCELED) {
             //Write your code if there's no result
@@ -483,12 +525,16 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
 
                     mMap.invalidate();
                 }
+                isSpecialOverlayOpened = true;
+                invalidateOptionsMenu();
+                /*
                 ImageButton btnNavCancel = (ImageButton) findViewById(R.id.btnNavigateCancel);
                 if (btnNavCancel != null) btnNavCancel.setVisibility(View.VISIBLE);
                 ImageButton btnNav = (ImageButton) findViewById(R.id.btnNavigate);
                 if (btnNav != null) btnNav.setVisibility(View.GONE);
                 ImageButton btnSearch = (ImageButton) findViewById(R.id.btnSearch);
                 if (btnSearch != null) btnSearch.setVisibility(View.GONE);
+                */
             }
             //if (resultCode == Activity.RESULT_CANCELED) {
             //Write your code if there's no result
@@ -535,5 +581,97 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
     @Override
     public boolean longPressHelper(GeoPoint geoPoint) {
         return false;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.osmaps_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+        if (isSpecialOverlayOpened)
+        {
+            menu.findItem(R.id.menuItemCancel).setVisible(true);
+            menu.findItem(R.id.menuItemSearch).setVisible(false);
+            menu.findItem(R.id.menuItemNavigate).setVisible(false);
+        }
+        else
+        {
+            menu.findItem(R.id.menuItemCancel).setVisible(false);
+            menu.findItem(R.id.menuItemSearch).setVisible(true);
+            menu.findItem(R.id.menuItemNavigate).setVisible(true);
+        }
+        if (isAdmin)
+        {
+            menu.findItem(R.id.menuItemAdmin).setVisible(true);
+        }
+        else
+        {
+            menu.findItem(R.id.menuItemAdmin).setVisible(false);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        Intent intent = null;
+        switch (item.getItemId()) {
+            case R.id.menuItemAddBuilding:
+                intent = new Intent(OSMapsActivity.this, AddBuildingActivity.class);
+                intent.putExtra("token", token);
+                startActivity(intent);
+                return true;
+            case R.id.menuItemAdmin:
+                intent = new Intent(OSMapsActivity.this, AdminActivity.class);
+                intent.putExtra("token", token);
+                startActivity(intent);
+                return true;
+            case R.id.menuItemList:
+                intent = new Intent(OSMapsActivity.this, ListActivity.class);
+                intent.putExtra("token", token);
+                startActivity(intent);
+                return true;
+            case R.id.menuItemLogout:
+                setResult(RESULT_OK);
+                finish();
+                return true;
+            case R.id.menuItemCancel:
+                final MapView mMap = (MapView) findViewById(R.id.map);
+                if (mMap != null) {
+                    Set<Integer> layerKeys = customLayers.keySet();
+                    for (int i = 0; i < navigationOverlays.size(); i++) {
+                        if (navigationOverlays.get(i) instanceof FolderOverlay) {
+                            for (int layer : layerKeys) {
+                                List<FolderOverlay> layerData = customLayers.get(layer);
+                                if (layerData.contains(navigationOverlays.get(i)))
+                                    layerData.remove(navigationOverlays.get(i));
+                            }
+                            if (currentLocationOverlay.getItems().contains(navigationOverlays.get(i)))
+                                currentLocationOverlay.getItems().remove(navigationOverlays.get(i));
+                        }
+                        mMap.getOverlays().remove(navigationOverlays.get(i));
+                    }
+                    mMap.invalidate();
+                    isSpecialOverlayOpened = false;
+                    invalidateOptionsMenu();
+                }
+                return true;
+            case R.id.menuItemSearch:
+                intent = new Intent(OSMapsActivity.this, SearchRoomActivity.class);
+                intent.putExtra("token", token);
+                startActivityForResult(intent, ACTIVITY_SEARCH_REQUEST_CODE);
+                return true;
+            case R.id.menuItemNavigate:
+                intent = new Intent(OSMapsActivity.this, NavigateActivity.class);
+                intent.putExtra("token", token);
+                startActivityForResult(intent, ACTIVITY_NAVIGATE_REQUEST_CODE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

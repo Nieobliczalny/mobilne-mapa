@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Szukaj"
+        android:id="@+id/menuItemSearch"
+        android:visible="true"
+        android:enabled="true" />
+    <item android:title="Nawigacja"
+        android:id="@+id/menuItemNavigate"
+        android:visible="true"
+        android:enabled="true" />
+    <item android:title="Ukryj nakładki"
+        android:id="@+id/menuItemCancel"
+        android:visible="false"
+        android:enabled="true" />
+    <item android:title="Lista budynków"
+        android:id="@+id/menuItemList"
+        android:visible="true"
+        android:enabled="true" />
+    <item android:title="Dodaj budynek"
+        android:id="@+id/menuItemAddBuilding"
+        android:visible="true"
+        android:enabled="true" />
+    <item android:title="Administracja"
+        android:id="@+id/menuItemAdmin"
+        android:visible="false"
+        android:enabled="true" />
+    <item android:title="Wyloguj się"
+        android:id="@+id/menuItemLogout"
+        android:visible="true"
+        android:enabled="true" />
+</menu>

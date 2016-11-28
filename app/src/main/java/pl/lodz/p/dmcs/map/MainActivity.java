@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         token = sharedPref.getString("loginToken", "");
         if (!token.equalsIgnoreCase(""))
         {
-            Intent intent = new Intent(MainActivity.this, MainMenuActivity.class);
+            Intent intent = new Intent(MainActivity.this, OSMapsActivity.class);
             intent.putExtra("token", token);
             startActivityForResult(intent, MENU_ACTIVITY_REQUEST_CODE);
         }
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                                 try {
                                     Toast t = Toast.makeText(ctx, "Welcome " + obj.getString("nick") + "!", Toast.LENGTH_SHORT);
                                     t.show();
-                                    Intent intent = new Intent(MainActivity.this, MainMenuActivity.class);
+                                    Intent intent = new Intent(MainActivity.this, OSMapsActivity.class);
                                     intent.putExtra("token", token);
                                     startActivityForResult(intent, MENU_ACTIVITY_REQUEST_CODE);
                                 } catch (JSONException ex){
