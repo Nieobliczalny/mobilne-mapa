@@ -30,6 +30,7 @@ import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.routing.RoadNode;
+import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
@@ -40,6 +41,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
+import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.PathOverlay;
@@ -47,6 +49,7 @@ import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
+import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,7 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class OSMapsActivity extends AppCompatActivity {
+public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiver {
     private final static int REQUEST_WRITE_STORAGE = 1;
     public final static int ACTIVITY_NAVIGATE_REQUEST_CODE = 2;
     public final static int ACTIVITY_SEARCH_REQUEST_CODE = 3;
@@ -364,6 +367,9 @@ public class OSMapsActivity extends AppCompatActivity {
                 startActivityForResult(intent, ACTIVITY_SEARCH_REQUEST_CODE);
             }
         });
+        //Ukrywanie wszystkich CustomInfoWindow po kliknieciu na mape
+        MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(this, this);
+        mMap.getOverlays().add(0, mapEventsOverlay);
     }
 
     @Override
@@ -517,5 +523,17 @@ public class OSMapsActivity extends AppCompatActivity {
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    @Override
+    public boolean singleTapConfirmedHelper(GeoPoint geoPoint) {
+        final MapView mMap = (MapView) findViewById(R.id.map);
+        if (mMap != null) InfoWindow.closeAllInfoWindowsOn(mMap);
+        return true;
+    }
+
+    @Override
+    public boolean longPressHelper(GeoPoint geoPoint) {
+        return false;
     }
 }
