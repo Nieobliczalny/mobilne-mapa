@@ -29,7 +29,7 @@
         android:ems="10"
         android:layout_above="@+id/ratingBar"
         android:id="@+id/editText4"
-        android:hint="Your comment"
+        android:hint="Twój komentarz"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
@@ -44,7 +44,7 @@
         android:layout_above="@+id/editText4" />
 
     <TextView
-        android:text="Comments:"
+        android:text="Komentarze:"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView4"
@@ -55,7 +55,7 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        android:text="Button"
+        android:text="Wyślij"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/button6"
@@ -78,7 +78,7 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        android:text="Best"
+        android:text="Najlepsze"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/listView"

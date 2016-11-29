@@ -76,7 +76,8 @@ public class MyArrayAdapter extends BaseAdapter {
             android.util.Log.i("ADAPTER", comment.getString("text"));
 
             String newDate = formatDate(comment.getString("date").toString());
-            author.setText("By: " + comment.getString("author_nick") + "  Rating: " + comment.getString("rating") + " Date: " + newDate);
+            String ratingText = comment.getDouble("rating") != 0 ? "  Opinia: " + comment.getString("rating") : "";
+            author.setText("Przez: " + comment.getString("author_nick") + ratingText + " Data: " + newDate);
             button.setText(comment.getString("usefulness") + "\n" + "Like");
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {

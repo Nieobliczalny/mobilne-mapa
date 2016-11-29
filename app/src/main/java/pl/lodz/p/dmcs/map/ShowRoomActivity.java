@@ -198,11 +198,11 @@ public class ShowRoomActivity extends AppCompatActivity {
     public void changeSort() throws JSONException {
         if(sortType.equals("BEST")) {
             sortType = "NEW";
-            sortTypeButton.setText("NEWEST");
+            sortTypeButton.setText("Najnowsze");
         }
         else {
             sortType = "BEST";
-            sortTypeButton.setText("BEST");
+            sortTypeButton.setText("Najlepsze");
         }
 
         commentList = sort(commentList);
