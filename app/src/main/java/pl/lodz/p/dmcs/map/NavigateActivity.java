@@ -7,7 +7,9 @@ package pl.lodz.p.dmcs.map;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -125,29 +127,39 @@ public class NavigateActivity extends AppCompatActivity {
         super.onResume();
 
         Log.d("RESUMEEEEEE","a");
-        boolean gps_enabled = false;
-        boolean network_enabled = false;
 
-        try {
-            gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch(Exception ex) {}
 
-        try {
-            network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch(Exception ex) {}
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(!gps_enabled && !network_enabled) {
-            if(gps2 != null) gps2.setChecked(false);
-            if(z != null) z.setEnabled(true);
-            if(nav_start != null) {
-                nav_start.setEnabled(true);
-                nav_start.setHint("Początek drogi");
-            }
-            if(s1 != null) {
-                s1.setEnabled(true);
-                if (nav_room_start != null) {
-                    if (s1.isChecked()) nav_room_start.setEnabled(true);
-                    if (s1.isChecked()) nav_room_start.setHint("Sala");
+        if (requestCode == 20) {
+            Log.d("ONACTIVITYRESULT","a");
+
+            boolean gps_enabled = false;
+            boolean network_enabled = false;
+
+            try {
+                gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            } catch(Exception ex) {}
+
+            try {
+                network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            } catch(Exception ex) {}
+
+            if(!gps_enabled && !network_enabled) {
+                if(gps2 != null) gps2.setChecked(false);
+                if(z != null) z.setEnabled(true);
+                if(nav_start != null) {
+                    nav_start.setEnabled(true);
+                    nav_start.setHint("Początek drogi");
+                }
+                if(s1 != null) {
+                    s1.setEnabled(true);
+                    if (nav_room_start != null) {
+                        if (s1.isChecked()) nav_room_start.setEnabled(true);
+                        if (s1.isChecked()) nav_room_start.setHint("Sala");
+                    }
                 }
             }
         }
@@ -378,7 +390,7 @@ public class NavigateActivity extends AppCompatActivity {
                         public void onProviderDisabled(String s) {
 
                             Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(i);
+                            startActivityForResult(i,20);
                         }
                     };
                     listener2 = new LocationListener() {
