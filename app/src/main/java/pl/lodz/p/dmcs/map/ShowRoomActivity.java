@@ -23,7 +23,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.RunnableFuture;
 
 public class ShowRoomActivity extends AppCompatActivity {
@@ -35,11 +42,13 @@ public class ShowRoomActivity extends AppCompatActivity {
     private RatingBar ratingBar = null;
     private ListView listView = null;
     private Button submitButton = null;
+    private Button sortTypeButton = null;
     private EditText editText = null;
-    private ArrayAdapter<String> mAdapter;
-    private final ArrayList<String> list = new ArrayList<>();
+    private MyArrayAdapter myArrayAdapter;
     private final ArrayList<Integer> userIDs = new ArrayList<>();
     private int current_rating = 0;
+    private JSONArray commentList;
+    private String sortType = "BEST";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +66,19 @@ public class ShowRoomActivity extends AppCompatActivity {
         listView = (ListView) this.findViewById(R.id.listView);
         submitButton = (Button) this.findViewById(R.id.button6);
         editText = (EditText) this.findViewById(R.id.editText4);
+        sortTypeButton = (Button) this.findViewById(R.id.sort_type);
+        sortTypeButton.setText(sortType);
+
+        sortTypeButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                try {
+                    changeSort();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -69,8 +91,8 @@ public class ShowRoomActivity extends AppCompatActivity {
                     ratingBar.setIsIndicator(false);
                 }
                 else {
-                    ratingBar.setRating(current_rating);
                     ratingBar.setIsIndicator(true);
+                    ratingBar.setRating(current_rating);
                 }
             }
         });
@@ -117,8 +139,76 @@ public class ShowRoomActivity extends AppCompatActivity {
             }
         });
         task.execute(data);
+
     }
 
+    public void getComments()
+    {
+        JSONObject data = new JSONObject();
+        try {
+            if (type.equalsIgnoreCase("building")) data.put("action", "getBuildingById");
+            else data.put("action", "getRoomById");
+            data.put("id", id);
+            data.put("token", token);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        SendPostTask task = new SendPostTask();
+        task.setActivity(ShowRoomActivity.this);
+        task.setResponseListener(new JsonResponseListener() {
+            @Override
+            public void onResponse(final JSONObject obj) {
+                try {
+
+                    building = obj.getJSONObject("data");
+                    android.util.Log.i("TEST","PARAPET : " + building.getString("name"));
+                    commentList = building.getJSONArray("comments");
+                    commentList = sort(commentList);
+                    ((MyArrayAdapter) listView.getAdapter()).setCommentList(commentList);
+                    ((MyArrayAdapter) listView.getAdapter()).notifyDataSetChanged();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        task.execute(data);
+    }
+
+    public void sendVote(int commentId)
+    {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("action", "likeComment");
+            data.put("id", commentId);
+            data.put("token", token);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        SendPostTask task = new SendPostTask();
+        task.setActivity(ShowRoomActivity.this);
+        task.setResponseListener(new JsonResponseListener() {
+            @Override
+            public void onResponse(final JSONObject obj) {
+                    getComments();
+            }
+        });
+        task.execute(data);
+    }
+    public void changeSort() throws JSONException {
+        if(sortType.equals("BEST")) {
+            sortType = "NEW";
+            sortTypeButton.setText("NEWEST");
+        }
+        else {
+            sortType = "BEST";
+            sortTypeButton.setText("BEST");
+        }
+
+        commentList = sort(commentList);
+        ((MyArrayAdapter) listView.getAdapter()).setCommentList(commentList);
+        ((MyArrayAdapter) listView.getAdapter()).notifyDataSetChanged();
+    }
     public void sendComment(){
 
         JSONObject data = new JSONObject();
@@ -144,11 +234,12 @@ public class ShowRoomActivity extends AppCompatActivity {
                 public void run() {
                     try {
                         android.util.Log.i("TAG", comment.toString());
-                        list.add(comment.getString("text") + "\n" + "By --" +comment.getString("author_nick"));
+                        //list.add(comment.getString("text") + "\n" + "By --" +comment.getString("author_nick"));
                         userIDs.add(comment.getInt("author"));
                         current_rating = comment.getInt("total_ranking");
                         ratingBar.setRating((float)current_rating);///////////////////////
-                        ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+                        getComments();
+                        //((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -160,26 +251,115 @@ public class ShowRoomActivity extends AppCompatActivity {
 
     }
 
-
     public void initiate(JSONObject object) throws JSONException {
         final String name = object.getString("name");
-
+        android.util.Log.i("-----------","PARAPET : " + object.toString());
         final int rating = object.getInt("rating");
-        final JSONArray commentList = object.getJSONArray("comments");
+        commentList = object.getJSONArray("comments");
+        commentList = sort(commentList);
         for(int i = 0; i < commentList.length(); i++){
             JSONObject comment = (JSONObject) commentList.get(i);
-            list.add(comment.getString("text") + "\n" + "By --" +comment.getString("author_nick"));
             userIDs.add(comment.getInt("author"));
         }
-        mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+
+        myArrayAdapter = new MyArrayAdapter(this, commentList);
+        //mAdapter = new ArrayAdapter<>(this, R.layout.comment_list_item, list);
 
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                     nameText.setText(name);
                     ratingBar.setRating(rating);
-                    listView.setAdapter(mAdapter);
+                    listView.setAdapter(myArrayAdapter);
             }
         });
+    }
+
+    public JSONArray sort(JSONArray list) throws JSONException {
+        if(sortType.equals("BEST"))
+            return sortByUsefulness(list);
+        else
+            return sortByDate(list);
+    }
+
+    public JSONArray sortByDate(JSONArray list) throws JSONException {
+        JSONArray sortedJsonArray = new JSONArray();
+
+        List<JSONObject> jsonValues = new ArrayList<JSONObject>();
+        for (int i = 0; i < list.length(); i++) {
+            jsonValues.add(list.getJSONObject(i));
+        }
+        Collections.sort( jsonValues, new Comparator<JSONObject>() {
+
+            private static final String KEY_NAME = "date";
+
+            @Override
+            public int compare(JSONObject a, JSONObject b) {
+                String valA = new String();
+                String valB = new String();
+
+                try {
+                    valA = (String) a.get(KEY_NAME);
+                    valB = (String) b.get(KEY_NAME);
+                }
+                catch (JSONException e) {
+                    //do something
+                }
+
+                try {
+                    return (formatDate(valA).after(formatDate(valB))) ? -1 : 0;
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                //if you want to change the sort order, simply use the following:
+                //return -valA.compareTo(valB);
+                return 0;
+            }
+        });
+
+        for (int i = 0; i < list.length(); i++) {
+            sortedJsonArray.put(jsonValues.get(i));
+        }
+        return sortedJsonArray;
+    }
+
+    public Date formatDate(String dateBefore) throws ParseException {
+        SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return originalFormat.parse(dateBefore);
+    }
+    public JSONArray sortByUsefulness(JSONArray list) throws JSONException {
+        JSONArray sortedJsonArray = new JSONArray();
+
+        List<JSONObject> jsonValues = new ArrayList<JSONObject>();
+        for (int i = 0; i < list.length(); i++) {
+            jsonValues.add(list.getJSONObject(i));
+        }
+        Collections.sort( jsonValues, new Comparator<JSONObject>() {
+
+            private static final String KEY_NAME = "usefulness";
+
+            @Override
+            public int compare(JSONObject a, JSONObject b) {
+                String valA = new String();
+                String valB = new String();
+
+                try {
+                    valA = (String) a.get(KEY_NAME);
+                    valB = (String) b.get(KEY_NAME);
+                }
+                catch (JSONException e) {
+                    //do something
+                }
+
+                return -valA.compareTo(valB);
+                //if you want to change the sort order, simply use the following:
+                //return -valA.compareTo(valB);
+            }
+        });
+
+        for (int i = 0; i < list.length(); i++) {
+            sortedJsonArray.put(jsonValues.get(i));
+        }
+        return sortedJsonArray;
     }
 }
