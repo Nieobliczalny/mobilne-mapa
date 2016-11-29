@@ -2,7 +2,9 @@ package pl.lodz.p.dmcs.map;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -18,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +52,7 @@ public class ShowRoomActivity extends AppCompatActivity {
     private int current_rating = 0;
     private JSONArray commentList;
     private String sortType = "BEST";
+    private Button otherType = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,13 +65,71 @@ public class ShowRoomActivity extends AppCompatActivity {
             type = extras.getString("type");
         }
 
+        otherType = (Button) this.findViewById(R.id.btnOtherType);
+        if (type.equalsIgnoreCase("building")) otherType.setVisibility(View.GONE);
+        else otherType.setVisibility(View.VISIBLE);
+        otherType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<String> items = new ArrayList<String>();
+                items.add("Pomieszczenie");
+                items.add("Sala wykładowa");
+                items.add("Korytarz");
+                items.add("Sala laboratoryjna");
+                items.add("Toaleta");
+                items.add("Schody / Winda");
+                items.add("Zaplecze");
+                items.add("Pomieszczenie specjalne");
+                items.add("Biuro");
+                items.add("Sala konferencyjna");
+                String[] opts = new String[items.size()];
+                for (int i = 0; i < opts.length; i++) {
+                    opts[i] = items.get(i);
+                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(ShowRoomActivity.this);
+                builder.setTitle("Zaproponuj nowy typ sali")
+                        .setItems(opts, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // The 'which' argument contains the index position
+                                // of the selected item
+
+                                JSONObject data = new JSONObject();
+                                try {
+                                    data.put("action", "proposeNewRoomType");
+                                    data.put("id", id);
+                                    data.put("type", which);
+                                    data.put("token", token);
+                                } catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                                SendPostTask task = new SendPostTask();
+                                task.setActivity(ShowRoomActivity.this);
+                                task.setResponseListener(new JsonResponseListener() {
+                                    @Override
+                                    public void onResponse(final JSONObject obj) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o typie sali wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
+                                                t.show();
+                                            }
+                                        });
+                                    }
+                                });
+                                task.execute(data);
+                            }
+                        });
+                AlertDialog d = builder.create();
+                d.show();
+            }
+        });
         nameText = (TextView) this.findViewById(R.id.textView5);
         ratingBar = (RatingBar) this.findViewById(R.id.ratingBar);
         listView = (ListView) this.findViewById(R.id.listView);
         submitButton = (Button) this.findViewById(R.id.button6);
         editText = (EditText) this.findViewById(R.id.editText4);
         sortTypeButton = (Button) this.findViewById(R.id.sort_type);
-        sortTypeButton.setText(sortType);
+        //sortTypeButton.setText(sortType);
 
         sortTypeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {

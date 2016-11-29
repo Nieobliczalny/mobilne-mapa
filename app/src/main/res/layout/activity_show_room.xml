@@ -86,4 +86,13 @@
         android:layout_alignParentEnd="true"
         android:id="@+id/sort_type"
         android:layout_alignParentTop="true" />
+
+    <Button
+        android:text="Inny typ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnOtherType"
+        android:layout_above="@+id/listView"
+        android:layout_toLeftOf="@+id/sort_type"
+        android:layout_toStartOf="@+id/sort_type" />
 </RelativeLayout>
