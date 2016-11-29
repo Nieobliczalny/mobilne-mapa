@@ -68,6 +68,8 @@ public class NavigateActivity extends AppCompatActivity {
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
 
+
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             token = extras.getString("token");
@@ -116,6 +118,41 @@ public class NavigateActivity extends AppCompatActivity {
         Log.d("PAUSEEEEEEEE","a");
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.d("RESUMEEEEEE","a");
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+
+        try {
+            gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+
+        try {
+            network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex) {}
+
+        if(!gps_enabled && !network_enabled) {
+            if(gps2 != null) gps2.setChecked(false);
+            if(z != null) z.setEnabled(true);
+            if(nav_start != null) {
+                nav_start.setEnabled(true);
+                nav_start.setHint("Początek drogi");
+            }
+            if(s1 != null) {
+                s1.setEnabled(true);
+                if (nav_room_start != null) {
+                    if (s1.isChecked()) nav_room_start.setEnabled(true);
+                    if (s1.isChecked()) nav_room_start.setHint("Sala");
+                }
+            }
+        }
+
+    }
+
     private void setUpListeners(){
 
         if (hintsBuilding == null) {
@@ -364,8 +401,8 @@ public class NavigateActivity extends AppCompatActivity {
                         @Override
                         public void onProviderDisabled(String s) {
 
-                            Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(i);
+                            //Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                           // startActivity(i);
                         }
                     };
                     configure();
