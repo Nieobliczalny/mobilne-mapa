@@ -1,10 +1,9 @@
 package pl.lodz.p.dmcs.map;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,13 +45,13 @@ public class DirectionsJSONParser {
                     for(int k=0;k<jSteps.length();k++){
                         String polyline = "";
                         polyline = (String)((JSONObject)((JSONObject)jSteps.get(k)).get("polyline")).get("points");
-                        List<LatLng> list = decodePoly(polyline);
+                        List<GeoPoint> list = decodePoly(polyline);
 
                         /** Traversing all points */
                         for(int l=0;l<list.size();l++){
                             HashMap<String, String> hm = new HashMap<String, String>();
-                            hm.put("lat", Double.toString(((LatLng)list.get(l)).latitude) );
-                            hm.put("lng", Double.toString(((LatLng)list.get(l)).longitude) );
+                            hm.put("lat", Double.toString(list.get(l).getLatitude()));
+                            hm.put("lng", Double.toString(list.get(l).getLongitude()));
                             path.add(hm);
                         }
                     }
@@ -73,9 +72,9 @@ public class DirectionsJSONParser {
      * @param encoded List of points to decode
      * @return List of decoded polyline points
      */
-    private List<LatLng> decodePoly(String encoded) {
+    private List<GeoPoint> decodePoly(String encoded) {
 
-        List<LatLng> poly = new ArrayList<LatLng>();
+        List<GeoPoint> poly = new ArrayList<>();
         int index = 0, len = encoded.length();
         int lat = 0, lng = 0;
 
@@ -99,7 +98,7 @@ public class DirectionsJSONParser {
             int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
             lng += dlng;
 
-            LatLng p = new LatLng((((double) lat / 1E5)),
+            GeoPoint p = new GeoPoint((((double) lat / 1E5)),
                     (((double) lng / 1E5)));
             poly.add(p);
         }
