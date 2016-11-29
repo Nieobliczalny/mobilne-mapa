@@ -6,6 +6,7 @@ package pl.lodz.p.dmcs.map;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
@@ -56,6 +57,7 @@ public class NavigateActivity extends AppCompatActivity {
 
     private TextView z = null;
     private CheckBox s1 = null;
+    protected final Arbiter syncToken = new Arbiter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,31 +197,47 @@ public class NavigateActivity extends AppCompatActivity {
         Button showBtn = (Button) findViewById(R.id.search_show_route);
         if (showBtn != null)
         {
+
             showBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent returnIntent = new Intent();
                     GeoPoint startPoint = null;
-                    GeoPoint endPoint = null;
                     Integer startRoom = null;
-                    Integer endRoom = null;
                     Integer startLevel = null;
-                    Integer endLevel = null;
                     if(listaBudynkow != null) {
-                        if(gps2.isChecked())
-                        {
-                            startPoint = new GeoPoint(location2.getLongitude(),location2.getLatitude());
-                        }
-                        else
-                        {
+                        if (gps2.isChecked()) {
+                            final ProgressDialog barProgressDialog = new ProgressDialog(NavigateActivity.this);
+                            barProgressDialog.setTitle("Proszę czekać");
+                            barProgressDialog.setMessage("Ustalanie pozycji ...");
+                            barProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                            barProgressDialog.setIndeterminate(true);
+                            barProgressDialog.setCancelable(false);
+                            barProgressDialog.show();
+                            final GeoPoint tmp = new GeoPoint(0.0, 0.0);
+                            //final ProgressDialog ringProgressDialog = ProgressDialog.show(NavigateActivity.this, "Proszę czekać...", "Ustalanie lokalizacji", true);
+                            //ringProgressDialog.setCancelable(true);
+                            Thread mThread = new Thread() {
+                                @Override
+                                public void run() {
+                                    syncToken.waitProducer();
+                                    tmp.setLatitude(location2.getLongitude());
+                                    tmp.setLongitude(location2.getLatitude());
+                                    Log.i("Temp", tmp.toString());
+                                    sendLocationData(tmp, null, null);
+                                    syncToken.dataConsumed();
+                                    barProgressDialog.dismiss();
+                                }
+                            };
+                            mThread.start();
+                        } else {
                             for (Budynki b : listaBudynkow) {
-                                Log.d("LOOOOG",String.valueOf(b));
+                                Log.d("LOOOOG", String.valueOf(b));
                                 if (b.getNazwa_Obiektu().trim().equals(nav_start.getText().toString().trim())) {
 
                                     startPoint = new GeoPoint(b.getLong(), b.getLat());
-                                    for(Floor f : b.getFloors()){
-                                        for (Room r : f.getRooms()){
-                                            if(new String(r.getRoomName()+", pietro "+f.getLevel()).trim().equals(nav_room_start.getText().toString().trim())){
+                                    for (Floor f : b.getFloors()) {
+                                        for (Room r : f.getRooms()) {
+                                            if (new String(r.getRoomName() + ", pietro " + f.getLevel()).trim().equals(nav_room_start.getText().toString().trim())) {
                                                 startLevel = f.getLevel();
                                                 startRoom = r.getId();
                                             }
@@ -227,43 +245,9 @@ public class NavigateActivity extends AppCompatActivity {
                                     }
                                 }
                             }
-                        }
-
-                        for (Budynki b : listaBudynkow) {
-                            if (b.getNazwa_Obiektu().trim().equals(nav_end.getText().toString().trim())) {
-                                endPoint = new GeoPoint(b.getLong(), b.getLat());
-                                for(Floor f : b.getFloors()){
-                                    for (Room r : f.getRooms()){
-                                        if(new String(r.getRoomName()+", pietro "+f.getLevel()).trim().equals(nav_room_end.getText().toString().trim())){
-                                            endLevel = f.getLevel();
-                                            endRoom = r.getId();
-                                        }
-                                    }
-                                }
-                            }
+                            sendLocationData(startPoint, startLevel, startRoom);
                         }
                     }
-
-                    if(startPoint != null) {
-                        returnIntent.putExtra("startLat", startPoint.getLatitude());
-                        returnIntent.putExtra("startLng", startPoint.getLongitude());
-                    }
-                    if(endPoint != null) {
-                        returnIntent.putExtra("endLat", endPoint.getLatitude());
-                        returnIntent.putExtra("endLng", endPoint.getLongitude());
-                    }
-                    if (startRoom != null)
-                    {
-                        returnIntent.putExtra("startRoom",startRoom);
-                        returnIntent.putExtra("startLevel",startLevel);
-                    }
-                    if (endRoom != null)
-                    {
-                        returnIntent.putExtra("endRoom",endRoom);
-                        returnIntent.putExtra("endLevel",endLevel);
-                    }
-                    setResult(Activity.RESULT_OK,returnIntent);
-                    finish();
                 }
             });
         }
@@ -339,6 +323,7 @@ public class NavigateActivity extends AppCompatActivity {
                         public void onLocationChanged(Location location) {
                             Log.d("SIEC_CHANGE", "ONLOCATIONCHANGE");
                             location2 = new Location(location);
+                            syncToken.dataLoaded();
                         }
 
                         @Override
@@ -363,6 +348,7 @@ public class NavigateActivity extends AppCompatActivity {
                         public void onLocationChanged(Location location) {
                             Log.d("GPS_CHANGE", "ONLOCATIONCHANGE");
                             location2 = new Location(location);
+                            syncToken.dataLoaded();
                         }
 
                         @Override
@@ -427,4 +413,75 @@ public class NavigateActivity extends AppCompatActivity {
 
 
     }
+
+    void sendLocationData(GeoPoint startPoint, Integer startRoom, Integer startLevel) {
+        Intent returnIntent = new Intent();
+        GeoPoint endPoint = null;
+        Integer endRoom = null;
+        Integer endLevel = null;
+        if (listaBudynkow != null)
+        {
+            for (Budynki b : listaBudynkow) {
+                if (b.getNazwa_Obiektu().trim().equals(nav_end.getText().toString().trim())) {
+                    endPoint = new GeoPoint(b.getLong(), b.getLat());
+                    for(Floor f : b.getFloors()){
+                        for (Room r : f.getRooms()){
+                            if(new String(r.getRoomName()+", pietro "+f.getLevel()).trim().equals(nav_room_end.getText().toString().trim())){
+                                endLevel = f.getLevel();
+                                endRoom = r.getId();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if(startPoint != null) {
+            returnIntent.putExtra("startLat", startPoint.getLatitude());
+            returnIntent.putExtra("startLng", startPoint.getLongitude());
+        }
+        if(endPoint != null) {
+            returnIntent.putExtra("endLat", endPoint.getLatitude());
+            returnIntent.putExtra("endLng", endPoint.getLongitude());
+        }
+        if (startRoom != null)
+        {
+            returnIntent.putExtra("startRoom",startRoom);
+            returnIntent.putExtra("startLevel",startLevel);
+        }
+        if (endRoom != null)
+        {
+            returnIntent.putExtra("endRoom",endRoom);
+            returnIntent.putExtra("endLevel",endLevel);
+        }
+        setResult(Activity.RESULT_OK,returnIntent);
+        finish();
+    }
+    private class Arbiter {
+        private boolean dataLoaded = false;
+        public synchronized void waitProducer(){
+            while(!dataLoaded){
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        public synchronized void waitConsumer(){
+            while(dataLoaded){
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        public synchronized void dataLoaded(){
+            dataLoaded = true;
+            notify();
+        }public synchronized void dataConsumed(){
+            dataLoaded = false;
+            notify();
+        }}
 }
