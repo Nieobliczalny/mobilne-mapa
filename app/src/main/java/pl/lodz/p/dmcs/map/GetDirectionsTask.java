@@ -93,7 +93,8 @@ public class GetDirectionsTask extends AsyncTask<String, Void, String> {
             Road road = new Road(waypoints);
             // then, build an overlay with the route shape:
             Polyline roadOverlay = RoadManager.buildRoadOverlay(road);//, mMap.getContext());
-            roadOverlay.setColor(Color.GREEN);
+            roadOverlay.setColor(Color.RED);
+            roadOverlay.setWidth(8);
 
 
             //Add Route Overlays into map
