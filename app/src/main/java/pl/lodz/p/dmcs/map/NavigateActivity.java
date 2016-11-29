@@ -51,8 +51,8 @@ public class NavigateActivity extends AppCompatActivity {
 
     private LocationManager locationManager;
     private LocationListener listener;
+    private LocationListener listener2;
     private Location location2 = null;
-    private Location lastKnownLocation;
 
 
     @Override
@@ -91,6 +91,25 @@ public class NavigateActivity extends AppCompatActivity {
             }
         });
         task.execute(data);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (listener != null)
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+        locationManager.removeUpdates(listener);
+        Log.d("PAUSEEEEEEEE","a");
 
     }
     private void setUpListeners(){
@@ -316,11 +335,32 @@ public class NavigateActivity extends AppCompatActivity {
                     listener = new LocationListener() {
                         @Override
                         public void onLocationChanged(Location location) {
+                            Log.d("SIEC_CHANGE", "ONLOCATIONCHANGE");
+                            location2 = new Location(location);
+                        }
+
+                        @Override
+                        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+                        }
+
+                        @Override
+                        public void onProviderEnabled(String s) {
+
+                        }
+
+                        @Override
+                        public void onProviderDisabled(String s) {
+
+                            Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(i);
+                        }
+                    };
+                    listener2 = new LocationListener() {
+                        @Override
+                        public void onLocationChanged(Location location) {
                             Log.d("GPS_CHANGE", "ONLOCATIONCHANGE");
                             location2 = new Location(location);
-
-
-
                         }
 
                         @Override
@@ -370,7 +410,7 @@ public class NavigateActivity extends AppCompatActivity {
 
         if (listener != null) {
 
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener2);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, listener);
         }
     }
