@@ -8,6 +8,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -72,7 +73,7 @@ public class NavigateActivity extends AppCompatActivity {
         try {
             data.put("action", "getBuildings");
             data.put("token", token);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -92,10 +93,6 @@ public class NavigateActivity extends AppCompatActivity {
         task.execute(data);
 
     }
-
-
-
-
     private void setUpListeners(){
 
         if (hintsBuilding == null) {
@@ -312,12 +309,16 @@ public class NavigateActivity extends AppCompatActivity {
                         nav_room_start.setEnabled(false);
                         nav_room_start.setHint("");
                     }
+                    Boolean isGPSEnabled = locationManager
+                            .isProviderEnabled(LocationManager.GPS_PROVIDER);
+                    Log.d("GPSENABLED", isGPSEnabled+"");
 
                     listener = new LocationListener() {
                         @Override
                         public void onLocationChanged(Location location) {
+                            Log.d("GPS_CHANGE", "ONLOCATIONCHANGE");
                             location2 = new Location(location);
-                            Toast.makeText(getApplicationContext(),location2.toString(),Toast.LENGTH_LONG);
+
 
 
                         }
@@ -367,8 +368,10 @@ public class NavigateActivity extends AppCompatActivity {
             return;
         }
 
-        if (listener != null)
-             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,listener);
+        if (listener != null) {
 
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, listener);
+        }
     }
 }
