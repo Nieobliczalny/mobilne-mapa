@@ -350,6 +350,7 @@ public class NavigateActivity extends AppCompatActivity {
 
 
         gps2 = (CheckBox) findViewById(R.id.search_from_my_location);
+        gps2.setClickable(true);
         gps2.setOnClickListener(new View.OnClickListener() {
 
             @Override
