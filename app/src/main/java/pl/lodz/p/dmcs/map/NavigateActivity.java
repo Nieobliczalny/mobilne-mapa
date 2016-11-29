@@ -4,13 +4,17 @@ package pl.lodz.p.dmcs.map;
  * Created by emicgaj on 2016-11-05.
  */
 
+import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -20,7 +24,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,8 +46,12 @@ public class NavigateActivity extends AppCompatActivity {
     AutoCompleteTextView nav_room_start = null;
     AutoCompleteTextView nav_end = null;
     AutoCompleteTextView nav_room_end = null;
+    private CheckBox gps2 = null;
 
-
+    private LocationManager locationManager;
+    private LocationListener listener;
+    private Location location2 = null;
+    private Location lastKnownLocation;
 
 
     @Override
@@ -51,6 +59,8 @@ public class NavigateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_location_list);
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
 
         Bundle extras = getIntent().getExtras();
@@ -178,21 +188,29 @@ public class NavigateActivity extends AppCompatActivity {
                     Integer startLevel = null;
                     Integer endLevel = null;
                     if(listaBudynkow != null) {
-                        for (Budynki b : listaBudynkow) {
-                            Log.d("LOOOOG",String.valueOf(b));
-                            if (b.getNazwa_Obiektu().trim().equals(nav_start.getText().toString().trim())) {
+                        if(gps2.isChecked())
+                        {
+                            startPoint = new GeoPoint(location2.getLongitude(),location2.getLatitude());
+                        }
+                        else
+                        {
+                            for (Budynki b : listaBudynkow) {
+                                Log.d("LOOOOG",String.valueOf(b));
+                                if (b.getNazwa_Obiektu().trim().equals(nav_start.getText().toString().trim())) {
 
-                                startPoint = new GeoPoint(b.getLong(), b.getLat());
-                                for(Floor f : b.getFloors()){
-                                    for (Room r : f.getRooms()){
-                                        if(new String(r.getRoomName()+", pietro "+f.getLevel()).trim().equals(nav_room_start.getText().toString().trim())){
-                                            startLevel = f.getLevel();
-                                            startRoom = r.getId();
+                                    startPoint = new GeoPoint(b.getLong(), b.getLat());
+                                    for(Floor f : b.getFloors()){
+                                        for (Room r : f.getRooms()){
+                                            if(new String(r.getRoomName()+", pietro "+f.getLevel()).trim().equals(nav_room_start.getText().toString().trim())){
+                                                startLevel = f.getLevel();
+                                                startRoom = r.getId();
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+
                         for (Budynki b : listaBudynkow) {
                             if (b.getNazwa_Obiektu().trim().equals(nav_end.getText().toString().trim())) {
                                 endPoint = new GeoPoint(b.getLong(), b.getLat());
@@ -279,14 +297,13 @@ public class NavigateActivity extends AppCompatActivity {
 
 
 
-        CheckBox gps2 = (CheckBox) findViewById(R.id.search_from_my_location);
+        gps2 = (CheckBox) findViewById(R.id.search_from_my_location);
         gps2.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 TextView z = (TextView) findViewById(R.id.search_label_source);
                 if (((CheckBox) v).isChecked()) {
-
                     z.setEnabled(false);
                     nav_start.setEnabled(false);
                     nav_start.setHint("");
@@ -294,8 +311,35 @@ public class NavigateActivity extends AppCompatActivity {
                     if(nav_room_start != null){
                         nav_room_start.setEnabled(false);
                         nav_room_start.setHint("");
-
                     }
+
+                    listener = new LocationListener() {
+                        @Override
+                        public void onLocationChanged(Location location) {
+                            location2 = new Location(location);
+                            Toast.makeText(getApplicationContext(),location2.toString(),Toast.LENGTH_LONG);
+
+
+                        }
+
+                        @Override
+                        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+                        }
+
+                        @Override
+                        public void onProviderEnabled(String s) {
+
+                        }
+
+                        @Override
+                        public void onProviderDisabled(String s) {
+
+                            Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(i);
+                        }
+                    };
+                    configure();
                 }
                 else {
                     z.setEnabled(true);
@@ -308,7 +352,23 @@ public class NavigateActivity extends AppCompatActivity {
                     }
                 }
 
+
             }
         });
+    }
+    void configure(){
+        // first check for permissions
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET}
+                        ,10);
+            }
+
+            return;
+        }
+
+        if (listener != null)
+             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,listener);
+
     }
 }
