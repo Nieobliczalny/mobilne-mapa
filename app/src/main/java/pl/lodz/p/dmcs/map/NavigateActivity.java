@@ -54,6 +54,8 @@ public class NavigateActivity extends AppCompatActivity {
     private LocationListener listener2;
     private Location location2 = null;
 
+    private TextView z = null;
+    private CheckBox s1 = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -266,7 +268,7 @@ public class NavigateActivity extends AppCompatActivity {
             });
         }
 
-        final CheckBox s1 = (CheckBox) findViewById(R.id.sala_z);
+        s1 = (CheckBox) findViewById(R.id.sala_z);
         s1.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -318,7 +320,7 @@ public class NavigateActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                TextView z = (TextView) findViewById(R.id.search_label_source);
+                z = (TextView) findViewById(R.id.search_label_source);
                 if (((CheckBox) v).isChecked()) {
                     z.setEnabled(false);
                     nav_start.setEnabled(false);
@@ -404,14 +406,25 @@ public class NavigateActivity extends AppCompatActivity {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET}
                         ,10);
             }
-
+            gps2.setChecked(false);
+            z.setEnabled(true);
+            nav_start.setEnabled(true);
+            nav_start.setHint("Początek drogi");
+            s1.setEnabled(true);
+            if (nav_room_start != null) {
+                if(s1.isChecked()) nav_room_start.setEnabled(true);
+                if(s1.isChecked()) nav_room_start.setHint("Sala");
+            }
             return;
         }
+        else{
+            if (listener != null || listener2 != null) {
 
-        if (listener != null) {
-
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener2);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, listener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener2);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, listener);
+            }
         }
+
+
     }
 }
