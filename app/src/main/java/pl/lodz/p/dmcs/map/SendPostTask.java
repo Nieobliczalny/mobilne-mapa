@@ -1,6 +1,9 @@
 package pl.lodz.p.dmcs.map;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -100,6 +103,7 @@ public class SendPostTask extends AsyncTask<JSONObject, Integer, String> {
     }
 
     private InputStream downloadUrl(URL url, JSONObject data) throws IOException {
+        if (!isOnline()) return null;
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000 /* milliseconds */);
         conn.setConnectTimeout(15000 /* milliseconds */);
@@ -113,6 +117,12 @@ public class SendPostTask extends AsyncTask<JSONObject, Integer, String> {
         outputPost.flush();
         outputPost.close();
         return conn.getInputStream();
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     public void setResponseListener(JsonResponseListener jrl)

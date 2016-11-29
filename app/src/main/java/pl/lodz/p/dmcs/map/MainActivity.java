@@ -2,8 +2,13 @@ package pl.lodz.p.dmcs.map;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -20,19 +25,37 @@ public class MainActivity extends AppCompatActivity {
     protected Context ctx;
     protected String token = "";
     private final static int MENU_ACTIVITY_REQUEST_CODE = 10;
+    private final static int MENU_SETTINGS_REQUEST_CODE = 11;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         ctx = this;
-        SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
-        token = sharedPref.getString("loginToken", "");
-        if (!token.equalsIgnoreCase(""))
-        {
-            Intent intent = new Intent(MainActivity.this, OSMapsActivity.class);
-            intent.putExtra("token", token);
-            startActivityForResult(intent, MENU_ACTIVITY_REQUEST_CODE);
+        if (!isOnline()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Do działania aplikacji wymagane jest połączenie z internetem. Włącz transmisję danych lub WiFi w Ustawieniach.")
+                    .setTitle("Błąd połączenia")
+                    .setCancelable(false)
+                    .setPositiveButton("Otwórz Ustawienia",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    Intent i = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                                    startActivityForResult(i, MENU_SETTINGS_REQUEST_CODE);
+                                }
+                            }
+                    )
+                    .setNegativeButton("Wyjdź",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    MainActivity.this.finish();
+                                }
+                            }
+                    );
+            AlertDialog alert = builder.create();
+            alert.show();
+        } else {
+            checkIfLoggedIn();
         }
         Button loginBtn = (Button) findViewById(R.id.btnLogIn);
         if (loginBtn != null) loginBtn.setOnClickListener(new View.OnClickListener() {
@@ -143,6 +166,26 @@ public class MainActivity extends AppCompatActivity {
                 editor.remove("loginToken");
                 editor.commit();
             }
+        }
+        if (requestCode == MENU_SETTINGS_REQUEST_CODE) {
+            if (isOnline()) checkIfLoggedIn();
+            else finish();
+        }
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+    private void checkIfLoggedIn() {
+        SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+        token = sharedPref.getString("loginToken", "");
+        if (!token.equalsIgnoreCase(""))
+        {
+            Intent intent = new Intent(MainActivity.this, OSMapsActivity.class);
+            intent.putExtra("token", token);
+            startActivityForResult(intent, MENU_ACTIVITY_REQUEST_CODE);
         }
     }
 }

@@ -64,7 +64,7 @@ public class LoadKmlTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean ok) {
         //super.onPostExecute(ok);
-        if (mMap != null) {
+        if (mMap != null && mKmlDocument.mKmlRoot.mItems.size() > 0) {
             FolderOverlay mKmlOverlay = (FolderOverlay) mKmlDocument.mKmlRoot.buildOverlay(mMap, null, null, mKmlDocument);
             mKmlOverlay.setEnabled(isOverlayEnabled);
             /*

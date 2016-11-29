@@ -2,10 +2,13 @@ package pl.lodz.p.dmcs.map;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
@@ -426,7 +429,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 GetDirectionsTask gdt = new GetDirectionsTask();
                 gdt.setMap(mMap);
                 gdt.setOverlayContainer(navigationOverlays);
-                gdt.execute(GetDirectionsTask.getDirectionsUrl(startPoint, endPoint));
+                if (isOnline()) gdt.execute(GetDirectionsTask.getDirectionsUrl(startPoint, endPoint));
                 if (startRoom != null && startLevel != null && insideOverlays.containsKey(startRoom))
                 {
                     Polygon o = (Polygon) insideOverlays.get(startRoom);
@@ -673,5 +676,11 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }
