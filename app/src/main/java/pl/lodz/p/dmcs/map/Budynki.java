@@ -14,12 +14,16 @@ public class Budynki {
     private double Long;
     private double Lat;
     private ArrayList<Floor> floors;
+    private String unofficial_name;
+    private String number;
 
-    public Budynki(String nazwa_Obiektu, double aLong, double lat, ArrayList<Floor> floors) {
+    public Budynki(String nazwa_Obiektu, double aLong, double lat, ArrayList<Floor> floors, String unofficial_name, String number) {
         Nazwa_Obiektu = nazwa_Obiektu;
         Long = aLong;
         Lat = lat;
         this.floors = floors;
+        this.unofficial_name = unofficial_name;
+        this.number = number;
     }
 
     public String getNazwa_Obiektu() {
@@ -50,6 +54,22 @@ public class Budynki {
 
     public void setFloors(ArrayList<Floor> floors) { this.floors = floors; }
 
+    public String getUnofficial_name() {
+        return unofficial_name;
+    }
+
+    public void setUnofficial_name(String unofficial_name) {
+        this.unofficial_name = unofficial_name;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
     @Override
     public String toString() {
         return "Budynki{" +
@@ -57,6 +77,8 @@ public class Budynki {
                 ", Long=" + Long +
                 ", Lat=" + Lat +
                 ", floors=" + floors +
+                ", unofficial_name=" + unofficial_name +
+                ", number=" + number +
                 '}';
     }
 }

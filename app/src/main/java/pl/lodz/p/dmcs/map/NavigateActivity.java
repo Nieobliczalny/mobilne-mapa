@@ -8,6 +8,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +39,7 @@ import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 public class NavigateActivity extends AppCompatActivity {
@@ -180,6 +183,8 @@ public class NavigateActivity extends AppCompatActivity {
                     Double lat = building.getDouble("latitude");
                     Double lng = building.getDouble("longitude");
                     String name = building.getString("name");
+                    String unofficial_name = building.getString("unofficial_name");
+                    String number = building.getString("number");
                     ArrayList<Floor> listaPieter = new ArrayList<>();
                     JSONArray floors = building.getJSONArray("floors");
                     for (int j = 0; j < floors.length(); j++)                    {
@@ -201,7 +206,7 @@ public class NavigateActivity extends AppCompatActivity {
                         Floor temp2 = new Floor(listaPomieszczen,idBudynku,numerPietra,new ArrayList<Double>());
                         listaPieter.add(temp2);
                     }
-                    Budynki temp = new Budynki(name, lng, lat, listaPieter);
+                    Budynki temp = new Budynki(name, lng, lat, listaPieter, unofficial_name, number);
                     Log.d("DOOOOOOOG TEMP",temp.toString());
                     listaBudynkow.add(temp);
                     hintsBuilding.add(temp.getNazwa_Obiektu());
@@ -251,9 +256,6 @@ public class NavigateActivity extends AppCompatActivity {
             showBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    GeoPoint startPoint = null;
-                    Integer startRoom = null;
-                    Integer startLevel = null;
                     if(listaBudynkow != null) {
                         if (gps2.isChecked()) {
                             final ProgressDialog barProgressDialog = new ProgressDialog(NavigateActivity.this);
@@ -280,22 +282,45 @@ public class NavigateActivity extends AppCompatActivity {
                             };
                             mThread.start();
                         } else {
-                            for (Budynki b : listaBudynkow) {
-                                Log.d("LOOOOG", String.valueOf(b));
-                                if (b.getNazwa_Obiektu().trim().equals(nav_start.getText().toString().trim())) {
-
-                                    startPoint = new GeoPoint(b.getLong(), b.getLat());
-                                    for (Floor f : b.getFloors()) {
-                                        for (Room r : f.getRooms()) {
-                                            if (new String(r.getRoomName() + ", pietro " + f.getLevel()).trim().equals(nav_room_start.getText().toString().trim())) {
-                                                startLevel = f.getLevel();
-                                                startRoom = r.getId();
-                                            }
-                                        }
-                                    }
-                                }
+                            //Filtrowanie po wpisanej nazwie
+                            String searchValue = nav_start.getText().toString().trim().toLowerCase().replace(';', ' ');
+                            final ArrayList<Budynki> found = new ArrayList<Budynki>();
+                            for (Budynki b : listaBudynkow)
+                            {
+                                if (isBuildingMatch(b, searchValue)) found.add(b);
                             }
-                            sendLocationData(startPoint, startLevel, startRoom);
+                            if (found.size() > 1)
+                            {
+                                ArrayList<String> items = new ArrayList<String>();
+                                for (Budynki b : found)
+                                {
+                                    items.add(b.getNazwa_Obiektu());
+                                }
+                                String[] opts = new String[items.size()];
+                                for (int i = 0; i < opts.length; i++) {
+                                    opts[i] = items.get(i);
+                                }
+                                AlertDialog.Builder builder = new AlertDialog.Builder(NavigateActivity.this);
+                                builder.setTitle("Punkt początkowy - Znaleziono kilka trafień, wybierz właściwe")
+                                        .setItems(opts, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                // The 'which' argument contains the index position
+                                                // of the selected item
+                                                saveStartNavigationData(found.get(which));
+                                            }
+                                        });
+                                AlertDialog d = builder.create();
+                                d.show();
+                            }
+                            else if (found.size() == 0)
+                            {
+                                Toast t = Toast.makeText(NavigateActivity.this, "Punkt początkowy - Nie znaleziono takiego obiektu! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
+                                t.show();
+                                return;
+                            }
+                            else {
+                                saveStartNavigationData(found.get(0));
+                            }
                         }
                     }
                 }
@@ -436,6 +461,107 @@ public class NavigateActivity extends AppCompatActivity {
             }
         });
     }
+    void saveStartNavigationData(Budynki b){
+        final GeoPoint startPoint = new GeoPoint(b.getLong(), b.getLat());
+        if (s1.isChecked()) {
+            Integer startRoom = null;
+            Integer startLevel = null;
+            final ArrayList<RoomFloorStruct> data = new ArrayList<>();
+            String searchValue = nav_room_start.getText().toString().trim().replace(';', ' ');
+            for (Floor f : b.getFloors()) {
+                for (Room r : f.getRooms()) {
+                    if (isRoomMatch(r, searchValue)) data.add(new RoomFloorStruct(f, r));
+                }
+            }
+            if (data.size() > 1)
+            {
+                ArrayList<String> items = new ArrayList<String>();
+                for (RoomFloorStruct d : data)
+                {
+                    items.add(d.getRoom().getRoomName() + ", piętro " + d.getFloor().getLevel());
+                }
+                String[] opts = new String[items.size()];
+                for (int i = 0; i < opts.length; i++) {
+                    opts[i] = items.get(i);
+                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(NavigateActivity.this);
+                builder.setTitle("Punkt początkowy (sala) - Znaleziono kilka trafień, wybierz właściwe")
+                        .setItems(opts, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // The 'which' argument contains the index position
+                                // of the selected item
+                                sendLocationData(startPoint, data.get(which).getRoom().getId(), data.get(which).getFloor().getLevel());
+                            }
+                        });
+                AlertDialog d = builder.create();
+                d.show();
+            }
+            else if (data.size() == 0)
+            {
+                Toast t = Toast.makeText(NavigateActivity.this, "Punkt początkowy - Nie znaleziono takiej sali! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
+                t.show();
+                return;
+            }
+            else {
+                startLevel = data.get(0).getFloor().getLevel();
+                startRoom = data.get(0).getRoom().getId();
+                sendLocationData(startPoint, startRoom, startLevel);
+            }
+        } else {
+            sendLocationData(startPoint, null, null);
+        }
+    }
+    void saveEndNavigationData(final GeoPoint startPoint, final Integer startRoom, final Integer startLevel, Budynki b){
+        final GeoPoint endPoint = new GeoPoint(b.getLong(), b.getLat());
+        CheckBox roomEndChk = (CheckBox) findViewById(R.id.sala_do);
+        if (roomEndChk.isChecked()) {
+            Integer endRoom = null;
+            Integer endLevel = null;
+            final ArrayList<RoomFloorStruct> data = new ArrayList<>();
+            String searchValue = nav_room_end.getText().toString().trim().replace(';', ' ');
+            for (Floor f : b.getFloors()) {
+                for (Room r : f.getRooms()) {
+                    if (isRoomMatch(r, searchValue)) data.add(new RoomFloorStruct(f, r));
+                }
+            }
+            if (data.size() > 1)
+            {
+                ArrayList<String> items = new ArrayList<String>();
+                for (RoomFloorStruct d : data)
+                {
+                    items.add(d.getRoom().getRoomName() + ", piętro " + d.getFloor().getLevel());
+                }
+                String[] opts = new String[items.size()];
+                for (int i = 0; i < opts.length; i++) {
+                    opts[i] = items.get(i);
+                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(NavigateActivity.this);
+                builder.setTitle("Punkt końcowy (sala) - Znaleziono kilka trafień, wybierz właściwe")
+                        .setItems(opts, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // The 'which' argument contains the index position
+                                // of the selected item
+                                finishLocationData(startPoint, startRoom, startLevel, endPoint, data.get(which).getRoom().getId(), data.get(which).getFloor().getLevel());
+                            }
+                        });
+                AlertDialog d = builder.create();
+                d.show();
+            }
+            else if (data.size() == 0)
+            {
+                Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy - Nie znaleziono takiej sali! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
+                t.show();
+                return;
+            }
+            else {
+                endLevel = data.get(0).getFloor().getLevel();
+                endRoom = data.get(0).getRoom().getId();
+                finishLocationData(startPoint, startRoom, startLevel, endPoint, endRoom, endLevel);
+            }
+        } else {
+            finishLocationData(startPoint, startRoom, startLevel, endPoint, null, null);
+        }
+    }
     void configure(){
         // first check for permissions
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -465,48 +591,100 @@ public class NavigateActivity extends AppCompatActivity {
 
     }
 
-    void sendLocationData(GeoPoint startPoint, Integer startRoom, Integer startLevel) {
-        Intent returnIntent = new Intent();
-        GeoPoint endPoint = null;
-        Integer endRoom = null;
-        Integer endLevel = null;
+    void sendLocationData(final GeoPoint startPoint, final Integer startRoom, final Integer startLevel) {
         if (listaBudynkow != null)
         {
+            //Filtrowanie po wpisanej nazwie
+            String searchValue = nav_end.getText().toString().trim().toLowerCase().replace(';', ' ');
+            final ArrayList<Budynki> found = new ArrayList<Budynki>();
             for (Budynki b : listaBudynkow) {
-                if (b.getNazwa_Obiektu().trim().equals(nav_end.getText().toString().trim())) {
-                    endPoint = new GeoPoint(b.getLong(), b.getLat());
-                    for(Floor f : b.getFloors()){
-                        for (Room r : f.getRooms()){
-                            if(new String(r.getRoomName()+", pietro "+f.getLevel()).trim().equals(nav_room_end.getText().toString().trim())){
-                                endLevel = f.getLevel();
-                                endRoom = r.getId();
-                            }
-                        }
-                    }
-                }
+                if (isBuildingMatch(b, searchValue)) found.add(b);
             }
+            if (found.size() > 1) {
+                ArrayList<String> items = new ArrayList<String>();
+                for (Budynki b : found)
+                {
+                    items.add(b.getNazwa_Obiektu());
+                }
+                String[] opts = new String[items.size()];
+                for (int i = 0; i < opts.length; i++) {
+                    opts[i] = items.get(i);
+                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(NavigateActivity.this);
+                builder.setTitle("Punkt końcowy - Znaleziono kilka trafień, wybierz właściwe")
+                        .setItems(opts, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // The 'which' argument contains the index position
+                                // of the selected item
+                                saveEndNavigationData(startPoint, startRoom, startLevel, found.get(which));
+                            }
+                        });
+                AlertDialog d = builder.create();
+                d.show();
+            } else if (found.size() == 0) {
+                Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy - Nie znaleziono takiego obiektu! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
+                t.show();
+                return;
+            } else {
+                saveEndNavigationData(startPoint, startRoom, startLevel, found.get(0));
+            }
+        } else {
+            Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy - Błąd danych, spróbuj uruchomić ponownie aplikację.", Toast.LENGTH_SHORT);
+            t.show();
         }
+    }
+    void finishLocationData(final GeoPoint startPoint, final Integer startRoom, final Integer startLevel, GeoPoint endPoint, Integer endRoom, Integer endLevel) {
+        Intent returnIntent = new Intent();
 
-        if(startPoint != null) {
-            returnIntent.putExtra("startLat", startPoint.getLatitude());
-            returnIntent.putExtra("startLng", startPoint.getLongitude());
+        if ((startPoint == endPoint) || (startPoint != null && endPoint != null && startPoint.getLongitude() == endPoint.getLongitude() && startPoint.getLatitude() == endPoint.getLatitude() &&
+                ((startRoom == endRoom) || (startRoom != null && startLevel != null && startRoom.equals(endRoom) && startLevel.equals(endLevel))))) {
+
+            setResult(Activity.RESULT_CANCELED);
+        } else {
+            if (startPoint != null) {
+                returnIntent.putExtra("startLat", startPoint.getLatitude());
+                returnIntent.putExtra("startLng", startPoint.getLongitude());
+            }
+            if (endPoint != null) {
+                returnIntent.putExtra("endLat", endPoint.getLatitude());
+                returnIntent.putExtra("endLng", endPoint.getLongitude());
+            }
+            if (startRoom != null) {
+                returnIntent.putExtra("startRoom", startRoom);
+                returnIntent.putExtra("startLevel", startLevel);
+            }
+            if (endRoom != null) {
+                returnIntent.putExtra("endRoom", endRoom);
+                returnIntent.putExtra("endLevel", endLevel);
+            }
+            setResult(Activity.RESULT_OK, returnIntent);
         }
-        if(endPoint != null) {
-            returnIntent.putExtra("endLat", endPoint.getLatitude());
-            returnIntent.putExtra("endLng", endPoint.getLongitude());
-        }
-        if (startRoom != null)
-        {
-            returnIntent.putExtra("startRoom",startRoom);
-            returnIntent.putExtra("startLevel",startLevel);
-        }
-        if (endRoom != null)
-        {
-            returnIntent.putExtra("endRoom",endRoom);
-            returnIntent.putExtra("endLevel",endLevel);
-        }
-        setResult(Activity.RESULT_OK,returnIntent);
         finish();
+    }
+    public boolean isBuildingMatch(Budynki b, String searchValue)
+    {
+        String buildingName = b.getNazwa_Obiektu().trim().toLowerCase();
+        String buildingUName = b.getUnofficial_name().trim().toLowerCase();
+        String buildingNumber = b.getNumber().trim().toLowerCase();
+        if (buildingName.contains(searchValue)) return true;
+        else if (buildingNumber.contains(searchValue)) return true;
+        else if (buildingUName.contains(searchValue)) return true;
+        else if (buildingName.length() > 0 && searchValue.contains(buildingName)) return true;
+        else if (buildingNumber.length() > 0 && searchValue.contains(buildingNumber)) return true;
+        else if (buildingUName.length() > 0 && searchValue.contains(buildingUName)) return true;
+        String[] uNames = buildingUName.split(";");
+        for (String uName : uNames)
+        {
+            if (uName.length() > 0 && searchValue.contains(uName)) return true;
+        }
+        return false;
+    }
+    public boolean isRoomMatch(Room r, String searchValue)
+    {
+        String roomName = r.getRoomName().trim().toLowerCase();
+        if (roomName.length() > 0 && searchValue.contains(roomName)) return true;
+        else if (roomName.contains(searchValue)) return true;
+        return false;
     }
     private class Arbiter {
         private boolean dataLoaded = false;
@@ -535,4 +713,30 @@ public class NavigateActivity extends AppCompatActivity {
             dataLoaded = false;
             notify();
         }}
+    private class RoomFloorStruct
+    {
+        private Floor floor;
+        private Room room;
+
+        public RoomFloorStruct(Floor floor, Room room) {
+            this.floor = floor;
+            this.room = room;
+        }
+
+        public Floor getFloor() {
+            return floor;
+        }
+
+        public void setFloor(Floor floor) {
+            this.floor = floor;
+        }
+
+        public Room getRoom() {
+            return room;
+        }
+
+        public void setRoom(Room room) {
+            this.room = room;
+        }
+    }
 }
