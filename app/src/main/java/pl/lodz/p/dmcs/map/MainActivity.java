@@ -188,4 +188,21 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(intent, MENU_ACTIVITY_REQUEST_CODE);
         }
     }
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Wyjście z aplikacji")
+                .setMessage("Czy na pewno chcesz wyjść z aplikacji?")
+                .setPositiveButton("Tak", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+
+                })
+                .setNegativeButton("Nie", null)
+                .show();
+    }
 }
