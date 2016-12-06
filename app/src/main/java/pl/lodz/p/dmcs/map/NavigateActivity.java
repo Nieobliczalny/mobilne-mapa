@@ -209,7 +209,7 @@ public class NavigateActivity extends AppCompatActivity {
                     Budynki temp = new Budynki(name, lng, lat, listaPieter, unofficial_name, number);
                     Log.d("DOOOOOOOG TEMP",temp.toString());
                     listaBudynkow.add(temp);
-                    hintsBuilding.add(temp.getNazwa_Obiektu());
+                    hintsBuilding.add(temp.getNazwa_Obiektu()+" ; "+temp.getUnofficial_name()+" ; " + temp.getNumber());
                     for(Floor f : listaPieter){
                         for(Room r : f.getRooms()){
                             hintsRooms.add(r.getRoomName()+", pietro "+f.getLevel());
@@ -294,7 +294,7 @@ public class NavigateActivity extends AppCompatActivity {
                                 ArrayList<String> items = new ArrayList<String>();
                                 for (Budynki b : found)
                                 {
-                                    items.add(b.getNazwa_Obiektu());
+                                    items.add(b.getNazwa_Obiektu()+" ; "+b.getUnofficial_name()+" ; "+b.getNumber());
                                 }
                                 String[] opts = new String[items.size()];
                                 for (int i = 0; i < opts.length; i++) {
@@ -467,7 +467,7 @@ public class NavigateActivity extends AppCompatActivity {
             Integer startRoom = null;
             Integer startLevel = null;
             final ArrayList<RoomFloorStruct> data = new ArrayList<>();
-            String searchValue = nav_room_start.getText().toString().trim().replace(';', ' ');
+            String searchValue = nav_room_start.getText().toString().trim().toLowerCase().replace(';', ' ');
             for (Floor f : b.getFloors()) {
                 for (Room r : f.getRooms()) {
                     if (isRoomMatch(r, searchValue)) data.add(new RoomFloorStruct(f, r));
@@ -518,7 +518,7 @@ public class NavigateActivity extends AppCompatActivity {
             Integer endRoom = null;
             Integer endLevel = null;
             final ArrayList<RoomFloorStruct> data = new ArrayList<>();
-            String searchValue = nav_room_end.getText().toString().trim().replace(';', ' ');
+            String searchValue = nav_room_end.getText().toString().trim().toLowerCase().replace(';', ' ');
             for (Floor f : b.getFloors()) {
                 for (Room r : f.getRooms()) {
                     if (isRoomMatch(r, searchValue)) data.add(new RoomFloorStruct(f, r));
@@ -639,6 +639,8 @@ public class NavigateActivity extends AppCompatActivity {
         if ((startPoint == endPoint) || (startPoint != null && endPoint != null && startPoint.getLongitude() == endPoint.getLongitude() && startPoint.getLatitude() == endPoint.getLatitude() &&
                 ((startRoom == endRoom) || (startRoom != null && startLevel != null && startRoom.equals(endRoom) && startLevel.equals(endLevel))))) {
 
+            Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy jest równy punktowi początkowemu. Nawigacja nie została uruchomiona.", Toast.LENGTH_SHORT);
+            t.show();
             setResult(Activity.RESULT_CANCELED);
         } else {
             if (startPoint != null) {
@@ -672,7 +674,7 @@ public class NavigateActivity extends AppCompatActivity {
         else if (buildingName.length() > 0 && searchValue.contains(buildingName)) return true;
         else if (buildingNumber.length() > 0 && searchValue.contains(buildingNumber)) return true;
         else if (buildingUName.length() > 0 && searchValue.contains(buildingUName)) return true;
-        String[] uNames = buildingUName.split(";");
+        String[] uNames = buildingUName.split(" ; ");
         for (String uName : uNames)
         {
             if (uName.length() > 0 && searchValue.contains(uName)) return true;
