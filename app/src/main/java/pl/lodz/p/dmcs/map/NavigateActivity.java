@@ -23,6 +23,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
@@ -62,6 +63,7 @@ public class NavigateActivity extends AppCompatActivity {
 
     private TextView z = null;
     private CheckBox s1 = null;
+    private CheckBox s2 = null;
     protected final Arbiter syncToken = new Arbiter();
 
     @Override
@@ -224,6 +226,20 @@ public class NavigateActivity extends AppCompatActivity {
         try {
             nav_start = (AutoCompleteTextView) findViewById(R.id.search_source);
             nav_start.setAdapter(hintsBuilding);
+            nav_start.setOnKeyListener(new View.OnKeyListener() {
+
+                @Override
+                public boolean onKey(View arg0, int arg1, KeyEvent arg2) {
+                    // TODO Auto-generated method stub
+                    if(s1 != null) s1.setChecked(false);
+                    if (nav_room_start != null) {
+                        nav_room_start.setEnabled(false);
+                        nav_room_start.setHint("");
+                        nav_room_start.setText("");
+                    }
+                    return false;
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -231,20 +247,35 @@ public class NavigateActivity extends AppCompatActivity {
         try {
             nav_end = (AutoCompleteTextView) findViewById(R.id.search_destination);
             nav_end.setAdapter(hintsBuilding);
+            nav_end.setOnKeyListener(new View.OnKeyListener() {
+
+                @Override
+                public boolean onKey(View arg0, int arg1, KeyEvent arg2) {
+                    // TODO Auto-generated method stub
+                    if(s2 != null) s2.setChecked(false);
+                    if (nav_room_end != null) {
+                        nav_room_end.setEnabled(false);
+                        nav_room_end.setHint("");
+                        nav_room_end.setText("");
+                    }
+                    return false;
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
         try {
             nav_room_start = (AutoCompleteTextView) findViewById(R.id.search_sala_z);
             nav_room_start.setEnabled(false);
-            nav_room_start.setAdapter(hintsRooms);
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         try {
             nav_room_end = (AutoCompleteTextView) findViewById(R.id.search_sala_do);
             nav_room_end.setEnabled(false);
-            nav_room_end.setAdapter(hintsRooms);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -337,6 +368,7 @@ public class NavigateActivity extends AppCompatActivity {
                     if(nav_room_start != null){
                         nav_room_start.setEnabled(true);
                         nav_room_start.setHint("Sala");
+                        nav_room_start.setAdapter(hintsRooms);
                     }
                 }
                 else {
@@ -349,7 +381,7 @@ public class NavigateActivity extends AppCompatActivity {
             }
         });
 
-        CheckBox s2 = (CheckBox) findViewById(R.id.sala_do);
+        s2 = (CheckBox) findViewById(R.id.sala_do);
         s2.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -359,6 +391,7 @@ public class NavigateActivity extends AppCompatActivity {
                     if(nav_room_end != null){
                         nav_room_end.setEnabled(true);
                         nav_room_end.setHint("Sala");
+                        nav_room_end.setAdapter(hintsRooms);
                     }
                 }
                 else {
@@ -384,11 +417,14 @@ public class NavigateActivity extends AppCompatActivity {
                 if (((CheckBox) v).isChecked()) {
                     z.setEnabled(false);
                     nav_start.setEnabled(false);
+                    nav_start.setText("");
                     nav_start.setHint("");
+                    s1.setChecked(false);
                     s1.setEnabled(false);
                     if(nav_room_start != null){
                         nav_room_start.setEnabled(false);
                         nav_room_start.setHint("");
+                        nav_room_start.setText("");
                     }
                     Boolean isGPSEnabled = locationManager
                             .isProviderEnabled(LocationManager.GPS_PROVIDER);
