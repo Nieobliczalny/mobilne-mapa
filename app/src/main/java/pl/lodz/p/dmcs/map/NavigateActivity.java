@@ -22,6 +22,8 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -226,18 +228,26 @@ public class NavigateActivity extends AppCompatActivity {
         try {
             nav_start = (AutoCompleteTextView) findViewById(R.id.search_source);
             nav_start.setAdapter(hintsBuilding);
-            nav_start.setOnKeyListener(new View.OnKeyListener() {
+            nav_start.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
 
                 @Override
-                public boolean onKey(View arg0, int arg1, KeyEvent arg2) {
-                    // TODO Auto-generated method stub
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                     if(s1 != null) s1.setChecked(false);
                     if (nav_room_start != null) {
                         nav_room_start.setEnabled(false);
                         nav_room_start.setHint("");
                         nav_room_start.setText("");
                     }
-                    return false;
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
                 }
             });
         } catch (Exception e) {
@@ -247,18 +257,25 @@ public class NavigateActivity extends AppCompatActivity {
         try {
             nav_end = (AutoCompleteTextView) findViewById(R.id.search_destination);
             nav_end.setAdapter(hintsBuilding);
-            nav_end.setOnKeyListener(new View.OnKeyListener() {
+            nav_end.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
 
                 @Override
-                public boolean onKey(View arg0, int arg1, KeyEvent arg2) {
-                    // TODO Auto-generated method stub
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                     if(s2 != null) s2.setChecked(false);
                     if (nav_room_end != null) {
                         nav_room_end.setEnabled(false);
                         nav_room_end.setHint("");
                         nav_room_end.setText("");
                     }
-                    return false;
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
                 }
             });
         } catch (Exception e) {
