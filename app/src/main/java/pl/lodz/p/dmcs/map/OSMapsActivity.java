@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -72,6 +75,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
     private final static int REQUEST_WRITE_STORAGE = 1;
     public final static int ACTIVITY_NAVIGATE_REQUEST_CODE = 2;
     public final static int ACTIVITY_SEARCH_REQUEST_CODE = 3;
+    private final static int REQUEST_LOCATION = 4;
     private String token;
     private JSONArray buildings = null;
     private int level = 0;
@@ -82,20 +86,55 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
     private FolderOverlay currentLocationOverlay = new FolderOverlay();
     protected List<Overlay> navigationOverlays = new ArrayList<>();
     protected Map<Integer, Overlay> insideOverlays = new HashMap<>();
+    private FolderOverlay gpsOverlay = new FolderOverlay();
 
     protected boolean isSpecialOverlayOpened = false;
     protected boolean isAdmin = false;
+
+    private LocationManager locationManager;
+    private LocationListener listener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        listener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                for (Overlay i : gpsOverlay.getItems()) {
+                    gpsOverlay.remove(i);
+                }
+                GeoPoint p = new GeoPoint(location.getLatitude(), location.getLongitude());
+                Polygon circle = new Polygon(OSMapsActivity.this);
+                circle.setPoints(Polygon.pointsAsCircle(p, 10.0));
+                circle.setFillColor(0xFF404040);
+                circle.setStrokeColor(Color.BLUE);
+                circle.setStrokeWidth(1);
+                circle.setInfoWindow(null);
+                gpsOverlay.add(circle);
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
 
         if (Build.VERSION.SDK_INT >= 23) {
             int permissionCheck = ContextCompat.checkSelfPermission(OSMapsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED){
                 ActivityCompat.requestPermissions(OSMapsActivity.this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         REQUEST_WRITE_STORAGE);
-
             } else {
                 initActivity();
             }
@@ -173,6 +212,15 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
             }
         });
         */
+
+        int permissionCheckLoc1 = ContextCompat.checkSelfPermission(OSMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionCheckLoc2 = ContextCompat.checkSelfPermission(OSMapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        if (permissionCheckLoc1 != PackageManager.PERMISSION_GRANTED && permissionCheckLoc2 != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(OSMapsActivity.this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+        }
+        else initLocation();
     }
 
     protected void addBuildings()
@@ -338,6 +386,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                     }
                 }, this);*/
         mMap.getOverlays().add(currentLocationOverlay);
+        mMap.getOverlays().add(gpsOverlay);
         /*try {
             //addRouteOverlay(new GeoPoint(19.45376900, 51.75269400), new GeoPoint(19.45596900, 51.74705900));
             GetDirectionsTask gdt = new GetDirectionsTask();
@@ -570,6 +619,18 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 }
                 return;
             }
+            case REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    initLocation();
+
+                }
+                return;
+            }
 
             // other 'case' lines to check for other
             // permissions this app might request
@@ -702,5 +763,40 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 })
                 .setNegativeButton("Nie", null)
                 .show();
+    }
+
+    protected void initLocation() {
+        int permissionCheckLoc1 = ContextCompat.checkSelfPermission(OSMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionCheckLoc2 = ContextCompat.checkSelfPermission(OSMapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        if (permissionCheckLoc1 != PackageManager.PERMISSION_GRANTED && permissionCheckLoc2 != PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, listener);
+        }
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (listener != null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager.removeUpdates(listener);
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initLocation();
     }
 }
