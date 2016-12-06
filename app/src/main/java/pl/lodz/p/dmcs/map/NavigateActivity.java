@@ -48,7 +48,8 @@ import java.util.Locale;
 public class NavigateActivity extends AppCompatActivity {
 
     private ArrayAdapter<String> hintsBuilding = null;
-    private ArrayAdapter<String> hintsRooms = null;
+    private ArrayAdapter<String> hintsRoomsStart = null;
+    private ArrayAdapter<String> hintsRoomsEnd = null;
     protected String token = "";
     private List<Budynki> listaBudynkow = null;
     private JSONArray buildings = null;
@@ -178,7 +179,8 @@ public class NavigateActivity extends AppCompatActivity {
         if (hintsBuilding == null) {
             listaBudynkow = new ArrayList<Budynki>();
             hintsBuilding = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
-            hintsRooms = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
+            hintsRoomsStart = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
+            hintsRoomsEnd = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
             Log.d("DOOOOOOOG",buildings.toString());
             if (buildings == null) return;
             for (int i = 0; i < buildings.length(); i++) {
@@ -214,11 +216,11 @@ public class NavigateActivity extends AppCompatActivity {
                     Log.d("DOOOOOOOG TEMP",temp.toString());
                     listaBudynkow.add(temp);
                     hintsBuilding.add(temp.getNazwa_Obiektu()+" ; "+temp.getUnofficial_name()+" ; " + temp.getNumber());
-                    for(Floor f : listaPieter){
-                        for(Room r : f.getRooms()){
-                            hintsRooms.add(r.getRoomName()+", pietro "+f.getLevel());
-                        }
-                    }
+//                    for(Floor f : listaPieter){
+//                        for(Room r : f.getRooms()){
+//                            hintsRooms.add(r.getRoomName()+", pietro "+f.getLevel());
+//                        }
+//                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -382,10 +384,52 @@ public class NavigateActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //is chkIos checked?
                 if (((CheckBox) v).isChecked()) {
+                    hintsRoomsStart.clear();
                     if(nav_room_start != null){
                         nav_room_start.setEnabled(true);
                         nav_room_start.setHint("Sala");
-                        nav_room_start.setAdapter(hintsRooms);
+
+
+                        if (listaBudynkow != null)
+                        {
+                            //Filtrowanie po wpisanej nazwie
+                            String searchValue = nav_start.getText().toString().trim().toLowerCase().replace(';', ' ');
+                            final ArrayList<Budynki> found = new ArrayList<Budynki>();
+                            for (Budynki b : listaBudynkow) {
+                                if (isBuildingMatch(b, searchValue)) found.add(b);
+                            }
+                            if (found.size() > 1) {
+                                Toast t = Toast.makeText(NavigateActivity.this, "Znaleziono kilka budynków pasujących do wzorca. Sprecyzuj", Toast.LENGTH_SHORT);
+                                s1.setChecked(false);
+                                if (nav_room_start != null) {
+                                    nav_room_start.setEnabled(false);
+                                    nav_room_start.setHint("");
+                                }
+                                t.show();
+
+                                return;
+                            } else if (found.size() == 0) {
+                                Toast t = Toast.makeText(NavigateActivity.this, "Nie znaleziono budynku bądź sali do budynku.", Toast.LENGTH_SHORT);
+                                s1.setChecked(false);
+                                if (nav_room_start != null) {
+                                    nav_room_start.setEnabled(false);
+                                    nav_room_start.setHint("");
+                                }
+                                t.show();
+                                return;
+                            } else {
+                                for(Floor f : found.get(0).getFloors()){
+                                    for(Room r : f.getRooms()){
+                                        hintsRoomsStart.add(r.getRoomName()+", pietro "+f.getLevel());
+                                    }
+                                }
+
+                                nav_room_start.setAdapter(hintsRoomsStart);
+                            }
+                        } else {
+                            Toast t = Toast.makeText(NavigateActivity.this, "Sale - Błąd danych, spróbuj uruchomić ponownie aplikację.", Toast.LENGTH_SHORT);
+                            t.show();
+                        }
                     }
                 }
                 else {
@@ -405,10 +449,52 @@ public class NavigateActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //is chkIos checked?
                 if (((CheckBox) v).isChecked()) {
+                    hintsRoomsEnd.clear();
                     if(nav_room_end != null){
                         nav_room_end.setEnabled(true);
                         nav_room_end.setHint("Sala");
-                        nav_room_end.setAdapter(hintsRooms);
+
+                        if (listaBudynkow != null)
+                        {
+                            //Filtrowanie po wpisanej nazwie
+                            String searchValue = nav_end.getText().toString().trim().toLowerCase().replace(';', ' ');
+                            final ArrayList<Budynki> found = new ArrayList<Budynki>();
+                            for (Budynki b : listaBudynkow) {
+                                if (isBuildingMatch(b, searchValue)) found.add(b);
+                            }
+                            if (found.size() > 1) {
+                                Toast t = Toast.makeText(NavigateActivity.this, "Znaleziono kilka budynków pasujących do wzorca. Sprecyzuj", Toast.LENGTH_SHORT);
+                                s2.setChecked(false);
+                                if (nav_room_end != null) {
+                                    nav_room_end.setEnabled(false);
+                                    nav_room_end.setHint("");
+                                }
+                                t.show();
+
+                                return;
+                            } else if (found.size() == 0) {
+                                Toast t = Toast.makeText(NavigateActivity.this, "Nie znaleziono budynku bądź sali do budynku.", Toast.LENGTH_SHORT);
+                                s2.setChecked(false);
+                                if (nav_room_end != null) {
+                                    nav_room_end.setEnabled(false);
+                                    nav_room_end.setHint("");
+                                }
+                                t.show();
+                                return;
+                            } else {
+                                for(Floor f : found.get(0).getFloors()){
+                                    for(Room r : f.getRooms()){
+                                        hintsRoomsEnd.add(r.getRoomName()+", pietro "+f.getLevel());
+                                    }
+                                }
+
+                                nav_room_end.setAdapter(hintsRoomsEnd);
+                            }
+                        } else {
+                            Toast t = Toast.makeText(NavigateActivity.this, "Sale - Błąd danych, spróbuj uruchomić ponownie aplikację.", Toast.LENGTH_SHORT);
+                            t.show();
+                        }
+
                     }
                 }
                 else {
