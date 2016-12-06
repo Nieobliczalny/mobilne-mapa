@@ -125,6 +125,7 @@ public class NavigateActivity extends AppCompatActivity {
                 return;
             }
             locationManager.removeUpdates(listener);
+            locationManager.removeUpdates(listener2);
         }
         Log.d("PAUSEEEEEEEE","a");
 
