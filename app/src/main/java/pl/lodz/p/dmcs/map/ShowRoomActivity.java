@@ -53,6 +53,7 @@ public class ShowRoomActivity extends AppCompatActivity {
     private JSONArray commentList;
     private String sortType = "BEST";
     private Button otherType = null;
+    private  String temp = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -314,7 +315,20 @@ public class ShowRoomActivity extends AppCompatActivity {
     }
 
     public void initiate(JSONObject object) throws JSONException {
-        final String name = object.getString("name");
+        String unofficial_name = building.getString("unofficial_name").replace(" ; ",", ");
+        String number = building.getString("number");
+        temp = building.getString("name");
+        if(!unofficial_name.equals("") || !number.equals("")) {
+            temp+=" ( ";
+            if (!unofficial_name.equals("")) {
+                temp += unofficial_name;
+            }
+            if (!number.equals("")) {
+                if (!unofficial_name.equals("")) temp +=", ";
+                temp += number;
+            }
+            temp+=" )";
+        }
         android.util.Log.i("-----------","PARAPET : " + object.toString());
         final int rating = object.getInt("rating");
         commentList = object.getJSONArray("comments");
@@ -330,7 +344,7 @@ public class ShowRoomActivity extends AppCompatActivity {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                    nameText.setText(name);
+                    nameText.setText(temp);
                     ratingBar.setRating(rating);
                     listView.setAdapter(myArrayAdapter);
             }
