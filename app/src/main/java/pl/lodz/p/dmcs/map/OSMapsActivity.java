@@ -106,11 +106,13 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 GeoPoint p = new GeoPoint(location.getLatitude(), location.getLongitude());
                 Polygon circle = new Polygon(OSMapsActivity.this);
                 circle.setPoints(Polygon.pointsAsCircle(p, 10.0));
-                circle.setFillColor(0xFF404040);
+                circle.setFillColor(0xFF0000FF);
                 circle.setStrokeColor(Color.BLUE);
                 circle.setStrokeWidth(1);
                 circle.setInfoWindow(null);
                 gpsOverlay.add(circle);
+                MapView map = (MapView) findViewById(R.id.map);
+                if (map != null) map.invalidate();
             }
 
             @Override
@@ -768,7 +770,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
     protected void initLocation() {
         int permissionCheckLoc1 = ContextCompat.checkSelfPermission(OSMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
         int permissionCheckLoc2 = ContextCompat.checkSelfPermission(OSMapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
-        if (permissionCheckLoc1 != PackageManager.PERMISSION_GRANTED && permissionCheckLoc2 != PackageManager.PERMISSION_GRANTED) {
+        if (permissionCheckLoc1 == PackageManager.PERMISSION_GRANTED || permissionCheckLoc2 == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, listener);
         }
