@@ -8,8 +8,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -34,6 +38,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.RunnableFuture;
 
 public class ShowRoomActivity extends AppCompatActivity {
@@ -65,65 +70,15 @@ public class ShowRoomActivity extends AppCompatActivity {
             id = extras.getInt("id");
             type = extras.getString("type");
         }
-
+/*
         otherType = (Button) this.findViewById(R.id.btnOtherType);
         if (type.equalsIgnoreCase("building")) otherType.setVisibility(View.GONE);
         else otherType.setVisibility(View.VISIBLE);
         otherType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<String> items = new ArrayList<String>();
-                items.add("Pomieszczenie");
-                items.add("Sala wykładowa");
-                items.add("Korytarz");
-                items.add("Sala laboratoryjna");
-                items.add("Toaleta");
-                items.add("Schody / Winda");
-                items.add("Zaplecze");
-                items.add("Pomieszczenie specjalne");
-                items.add("Biuro");
-                items.add("Sala konferencyjna");
-                String[] opts = new String[items.size()];
-                for (int i = 0; i < opts.length; i++) {
-                    opts[i] = items.get(i);
-                }
-                AlertDialog.Builder builder = new AlertDialog.Builder(ShowRoomActivity.this);
-                builder.setTitle("Zaproponuj nowy typ sali")
-                        .setItems(opts, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // The 'which' argument contains the index position
-                                // of the selected item
-
-                                JSONObject data = new JSONObject();
-                                try {
-                                    data.put("action", "proposeNewRoomType");
-                                    data.put("id", id);
-                                    data.put("type", which);
-                                    data.put("token", token);
-                                } catch (Exception e){
-                                    e.printStackTrace();
-                                }
-                                SendPostTask task = new SendPostTask();
-                                task.setActivity(ShowRoomActivity.this);
-                                task.setResponseListener(new JsonResponseListener() {
-                                    @Override
-                                    public void onResponse(final JSONObject obj) {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o typie sali wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
-                                                t.show();
-                                            }
-                                        });
-                                    }
-                                });
-                                task.execute(data);
-                            }
-                        });
-                AlertDialog d = builder.create();
-                d.show();
             }
-        });
+        });*/
         nameText = (TextView) this.findViewById(R.id.textView5);
         ratingBar = (RatingBar) this.findViewById(R.id.ratingBar);
         listView = (ListView) this.findViewById(R.id.listView);
@@ -439,5 +394,197 @@ public class ShowRoomActivity extends AppCompatActivity {
             sortedJsonArray.put(jsonValues.get(i));
         }
         return sortedJsonArray;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.showroom_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+        if (type.equalsIgnoreCase("building"))
+        {
+            menu.findItem(R.id.menuAddUName).setVisible(true);
+            menu.findItem(R.id.menuChangeNumber).setVisible(true);
+            menu.findItem(R.id.menuRoomType).setVisible(false);
+        }
+        else
+        {
+            menu.findItem(R.id.menuAddUName).setVisible(false);
+            menu.findItem(R.id.menuChangeNumber).setVisible(false);
+            menu.findItem(R.id.menuRoomType).setVisible(true);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        Intent intent = null;
+        switch (item.getItemId()) {
+            case R.id.menuAddUName:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Zaproponuj dodatkową nazwę budynku");
+
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String m_Text = input.getText().toString();
+                        JSONObject data = new JSONObject();
+                        try {
+                            data.put("action", "proposeNewBuildingUName");
+                            data.put("id", id);
+                            data.put("name", m_Text);
+                            data.put("token", token);
+                            android.util.Log.i("XXXD", data.toString());
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        SendPostTask task = new SendPostTask();
+                        task.setActivity(ShowRoomActivity.this);
+                        task.setResponseListener(new JsonResponseListener() {
+                            @Override
+                            public void onResponse(final JSONObject obj) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o nowej nazwie wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
+                                        t.show();
+                                    }
+                                });
+                            }
+                        });
+                        task.execute(data);
+                    }
+                });
+                builder.setNegativeButton("Anuluj", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.create().show();
+                return true;
+            case R.id.menuChangeNumber:
+                AlertDialog.Builder builder2 = new AlertDialog.Builder(this);
+                builder2.setTitle("Zaproponuj inny symbol budynku");
+
+                final EditText input2 = new EditText(this);
+                input2.setInputType(InputType.TYPE_CLASS_TEXT);
+                try {
+                    input2.setText(building.getString("number"));
+                } catch (JSONException e) {
+                    //e.printStackTrace();
+                }
+                builder2.setView(input2);
+
+                builder2.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String m_Text = input2.getText().toString();
+                        JSONObject data = new JSONObject();
+                        try {
+                            data.put("action", "proposeNewBuildingSymbol");
+                            data.put("id", id);
+                            data.put("name", m_Text);
+                            data.put("token", token);
+                            android.util.Log.i("XXXD", data.toString());
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        SendPostTask task = new SendPostTask();
+                        task.setActivity(ShowRoomActivity.this);
+                        task.setResponseListener(new JsonResponseListener() {
+                            @Override
+                            public void onResponse(final JSONObject obj) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o nowym symbolu wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
+                                        t.show();
+                                    }
+                                });
+                            }
+                        });
+                        task.execute(data);
+                    }
+                });
+                builder2.setNegativeButton("Anuluj", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder2.create().show();
+                return true;
+            case R.id.menuRoomType:
+                ArrayList<String> items = new ArrayList<String>();
+                items.add("Pomieszczenie");
+                items.add("Sala wykładowa");
+                items.add("Korytarz");
+                items.add("Sala laboratoryjna");
+                items.add("Toaleta");
+                items.add("Schody / Winda");
+                items.add("Zaplecze");
+                items.add("Pomieszczenie specjalne");
+                items.add("Biuro");
+                items.add("Sala konferencyjna");
+                final String[] opts = new String[items.size()];
+                for (int i = 0; i < opts.length; i++) {
+                    opts[i] = items.get(i);
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(ShowRoomActivity.this);
+                        builder.setTitle("Zaproponuj nowy typ sali")
+                                .setItems(opts, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // The 'which' argument contains the index position
+                                        // of the selected item
+
+                                        JSONObject data = new JSONObject();
+                                        try {
+                                            data.put("action", "proposeNewRoomType");
+                                            data.put("id", id);
+                                            data.put("type", which);
+                                            data.put("token", token);
+                                        } catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+                                        SendPostTask task = new SendPostTask();
+                                        task.setActivity(ShowRoomActivity.this);
+                                        task.setResponseListener(new JsonResponseListener() {
+                                            @Override
+                                            public void onResponse(final JSONObject obj) {
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o typie sali wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
+                                                        t.show();
+                                                    }
+                                                });
+                                            }
+                                        });
+                                        task.execute(data);
+                                    }
+                                });
+                        AlertDialog d = builder.create();
+                        d.show();
+                    }
+                });
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

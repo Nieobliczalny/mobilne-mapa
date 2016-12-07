@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Zmień typ sali"
+        android:id="@+id/menuRoomType" />
+    <item android:title="Dodaj nazwę"
+        android:id="@+id/menuAddUName" />
+    <item android:title="Zmień oznaczenie"
+        android:id="@+id/menuChangeNumber" />
+</menu>
