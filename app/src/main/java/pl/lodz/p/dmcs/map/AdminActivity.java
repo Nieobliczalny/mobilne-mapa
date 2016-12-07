@@ -214,7 +214,7 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(abf, "Punkty");
+        adapter.addFragment(abf, "Budynki");
         adapter.addFragment(aff, "Plany pięter");
         adapter.addFragment(atf, "Typy sal");
         adapter.addFragment(aaf, "Dostęp Admina");
