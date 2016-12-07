@@ -315,19 +315,21 @@ public class ShowRoomActivity extends AppCompatActivity {
     }
 
     public void initiate(JSONObject object) throws JSONException {
-        String unofficial_name = building.getString("unofficial_name").replace(" ; ",", ");
-        String number = building.getString("number");
         temp = building.getString("name");
-        if(!unofficial_name.equals("") || !number.equals("")) {
-            temp+=" ( ";
-            if (!unofficial_name.equals("")) {
-                temp += unofficial_name;
+        if (type.equalsIgnoreCase("building")) {
+            String unofficial_name = building.getString("unofficial_name").replace(" ; ", ", ");
+            String number = building.getString("number");
+            if (!unofficial_name.equals("") || !number.equals("")) {
+                temp += " ( ";
+                if (!unofficial_name.equals("")) {
+                    temp += unofficial_name;
+                }
+                if (!number.equals("")) {
+                    if (!unofficial_name.equals("")) temp += ", ";
+                    temp += number;
+                }
+                temp += " )";
             }
-            if (!number.equals("")) {
-                if (!unofficial_name.equals("")) temp +=", ";
-                temp += number;
-            }
-            temp+=" )";
         }
         android.util.Log.i("-----------","PARAPET : " + object.toString());
         final int rating = object.getInt("rating");
