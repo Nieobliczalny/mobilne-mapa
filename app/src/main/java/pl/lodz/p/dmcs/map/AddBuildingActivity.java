@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 public class AddBuildingActivity extends AppCompatActivity {
     protected String token;
+    private String temp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,12 +29,27 @@ public class AddBuildingActivity extends AppCompatActivity {
                 final EditText name = (EditText) findViewById(R.id.newName);
                 final EditText lat = (EditText) findViewById(R.id.newLat);
                 final EditText lng = (EditText) findViewById(R.id.newLng);
+                final EditText un = (EditText) findViewById(R.id.unoficial_name);
+                final EditText number = (EditText) findViewById(R.id.number);
+                temp = un.getText().toString();
+                String[] temp2 = temp.split(",");
+                StringBuilder finalny = new StringBuilder();
+                int index = 0;
+                for (String t: temp2) {
+                    finalny.append(t.trim());
+                    if(index < temp2.length-1) finalny.append(" ; ");
+                    index ++;
+                }
+
                 JSONObject data = new JSONObject();
                 try {
                     data.put("action", "addBuilding");
-                    data.put("name", name.getText().toString());
-                    data.put("latitude", lat.getText().toString());
-                    data.put("longitude", lng.getText().toString());
+                    data.put("name", name.getText().toString().trim());
+                    data.put("latitude", lat.getText().toString().trim());
+                    data.put("longitude", lng.getText().toString().trim());
+                    data.put("unofficial_name",finalny.toString());
+                    data.put("number", number.getText().toString().trim());
+
                     data.put("token", token);
                 } catch (Exception e){
                     e.printStackTrace();
@@ -47,6 +63,8 @@ public class AddBuildingActivity extends AppCompatActivity {
                         name.setText("");
                         lat.setText("");
                         lng.setText("");
+                        un.setText("");
+                        number.setText("");
                         Toast t = Toast.makeText(AddBuildingActivity.this, "Dane o budynku wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
                         t.show();
                     }
