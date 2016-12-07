@@ -42,7 +42,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                     results.clear();
                     EditText searchEdit = (EditText) findViewById(R.id.searchText);
                     if (searchEdit == null) return;
-                    Pattern pattern = Pattern.compile(searchEdit.getText().toString().replace(' ', '|'), Pattern.CASE_INSENSITIVE);//("/inf|ele");
+                    Pattern pattern = Pattern.compile(searchEdit.getText().toString().trim().replace(' ', '|'), Pattern.CASE_INSENSITIVE);//("/inf|ele");
                     for (int i = 0; i < buildings.length(); i++)
                     {
                         try {
