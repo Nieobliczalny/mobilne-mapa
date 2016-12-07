@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -90,6 +91,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
     protected List<Overlay> navigationOverlays = new ArrayList<>();
     protected Map<Integer, Overlay> insideOverlays = new HashMap<>();
     private FolderOverlay gpsOverlay = new FolderOverlay();
+    protected boolean centerOnMe = true;
 
     protected boolean isSpecialOverlayOpened = false;
     protected boolean isAdmin = false;
@@ -115,7 +117,18 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 circle.setInfoWindow(null);
                 gpsOverlay.add(circle);
                 MapView map = (MapView) findViewById(R.id.map);
-                if (map != null) map.invalidate();
+                if (map != null)
+                {
+                    map.invalidate();
+                    IMapController mapController = map.getController();
+                    if (centerOnMe)
+                    {
+                        mapController.setCenter(p);
+                        centerOnMe = true;
+                        ImageButton centerBtn = (ImageButton) findViewById(R.id.centerOnMe);
+                        if (centerBtn != null) centerBtn.setBackgroundResource(R.drawable.button_round_selected);
+                    }
+                }
             }
 
             @Override
@@ -294,7 +307,6 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
 
         mMap.setMapListener(new MapListener() {
             public boolean onZoom(ZoomEvent arg0) {
-                //android.util.Log.i("TAG", "ZOOM: " + arg0.toString());
                 if (btnLevelDown == null || btnLevelUp == null || levelText == null) return false;
                 if (arg0.getZoomLevel() >= 19)
                 {
@@ -330,7 +342,9 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
             }
 
             public boolean onScroll(ScrollEvent arg0) {
-                //android.util.Log.i("TAG", "SCROLL: " + arg0.toString());
+                centerOnMe = false;
+                ImageButton centerBtn = (ImageButton) findViewById(R.id.centerOnMe);
+                centerBtn.setBackgroundResource(R.drawable.button_round);
                 return false;
             }
         } );
@@ -804,6 +818,23 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
         if (permissionCheckLoc1 == PackageManager.PERMISSION_GRANTED || permissionCheckLoc2 == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, listener);
+            centerOnMe = false;
+            final ImageButton centerBtn = (ImageButton) findViewById(R.id.centerOnMe);
+            centerBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (centerOnMe)
+                    {
+                        centerBtn.setBackgroundResource(R.drawable.button_round);
+                        centerOnMe = false;;
+                    }
+                    else
+                    {
+                        centerBtn.setBackgroundResource(R.drawable.button_round_selected);
+                        centerOnMe = true;
+                    }
+                }
+            });
         }
 
     }
