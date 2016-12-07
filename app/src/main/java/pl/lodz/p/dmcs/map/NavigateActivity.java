@@ -379,9 +379,15 @@ public class NavigateActivity extends AppCompatActivity {
                             }
                             else if (found.size() == 0)
                             {
-                                Toast t = Toast.makeText(NavigateActivity.this, "Punkt początkowy - Nie znaleziono takiego obiektu! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
-                                t.show();
-                                return;
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        Toast t = Toast.makeText(NavigateActivity.this, "Punkt początkowy - Nie znaleziono takiego obiektu! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
+                                        t.show();
+                                        return;
+                                    }
+                                });
                             }
                             else {
                                 saveStartNavigationData(found.get(0));
@@ -634,26 +640,38 @@ public class NavigateActivity extends AppCompatActivity {
                 {
                     items.add(d.getRoom().getRoomName() + ", piętro " + d.getFloor().getLevel());
                 }
-                String[] opts = new String[items.size()];
+                final String[] opts = new String[items.size()];
                 for (int i = 0; i < opts.length; i++) {
                     opts[i] = items.get(i);
                 }
-                AlertDialog.Builder builder = new AlertDialog.Builder(NavigateActivity.this);
-                builder.setTitle("Punkt początkowy (sala) - Znaleziono kilka trafień, wybierz właściwe")
-                        .setItems(opts, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // The 'which' argument contains the index position
-                                // of the selected item
-                                sendLocationData(startPoint, data.get(which).getRoom().getId(), data.get(which).getFloor().getLevel());
-                            }
-                        });
-                AlertDialog d = builder.create();
-                d.show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(NavigateActivity.this);
+                        builder.setTitle("Punkt początkowy (sala) - Znaleziono kilka trafień, wybierz właściwe")
+                                .setItems(opts, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // The 'which' argument contains the index position
+                                        // of the selected item
+                                        sendLocationData(startPoint, data.get(which).getRoom().getId(), data.get(which).getFloor().getLevel());
+                                    }
+                                });
+                        AlertDialog d = builder.create();
+                        d.show();
+                    }
+                });
             }
             else if (data.size() == 0)
             {
-                Toast t = Toast.makeText(NavigateActivity.this, "Punkt początkowy - Nie znaleziono takiej sali! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
-                t.show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Toast t = Toast.makeText(NavigateActivity.this, "Punkt początkowy - Nie znaleziono takiej sali! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
+                        t.show();
+                    }
+                });
                 return;
             }
             else {
@@ -685,27 +703,39 @@ public class NavigateActivity extends AppCompatActivity {
                 {
                     items.add(d.getRoom().getRoomName() + ", piętro " + d.getFloor().getLevel());
                 }
-                String[] opts = new String[items.size()];
+                final String[] opts = new String[items.size()];
                 for (int i = 0; i < opts.length; i++) {
                     opts[i] = items.get(i);
                 }
-                AlertDialog.Builder builder = new AlertDialog.Builder(NavigateActivity.this);
-                builder.setTitle("Punkt końcowy (sala) - Znaleziono kilka trafień, wybierz właściwe")
-                        .setItems(opts, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // The 'which' argument contains the index position
-                                // of the selected item
-                                finishLocationData(startPoint, startRoom, startLevel, endPoint, data.get(which).getRoom().getId(), data.get(which).getFloor().getLevel());
-                            }
-                        });
-                AlertDialog d = builder.create();
-                d.show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(NavigateActivity.this);
+                        builder.setTitle("Punkt końcowy (sala) - Znaleziono kilka trafień, wybierz właściwe")
+                                .setItems(opts, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // The 'which' argument contains the index position
+                                        // of the selected item
+                                        finishLocationData(startPoint, startRoom, startLevel, endPoint, data.get(which).getRoom().getId(), data.get(which).getFloor().getLevel());
+                                    }
+                                });
+                        AlertDialog d = builder.create();
+                        d.show();
+                    }
+                });
             }
             else if (data.size() == 0)
             {
-                Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy - Nie znaleziono takiej sali! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
-                t.show();
-                return;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy - Nie znaleziono takiej sali! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
+                        t.show();
+                        return;
+                    }
+                });
             }
             else {
                 endLevel = data.get(0).getFloor().getLevel();
@@ -760,31 +790,49 @@ public class NavigateActivity extends AppCompatActivity {
                 {
                     items.add(b.getNazwa_Obiektu());
                 }
-                String[] opts = new String[items.size()];
+                final String[] opts = new String[items.size()];
                 for (int i = 0; i < opts.length; i++) {
                     opts[i] = items.get(i);
                 }
-                AlertDialog.Builder builder = new AlertDialog.Builder(NavigateActivity.this);
-                builder.setTitle("Punkt końcowy - Znaleziono kilka trafień, wybierz właściwe")
-                        .setItems(opts, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // The 'which' argument contains the index position
-                                // of the selected item
-                                saveEndNavigationData(startPoint, startRoom, startLevel, found.get(which));
-                            }
-                        });
-                AlertDialog d = builder.create();
-                d.show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(NavigateActivity.this);
+                        builder.setTitle("Punkt końcowy - Znaleziono kilka trafień, wybierz właściwe")
+                                .setItems(opts, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // The 'which' argument contains the index position
+                                        // of the selected item
+                                        saveEndNavigationData(startPoint, startRoom, startLevel, found.get(which));
+                                    }
+                                });
+                        AlertDialog d = builder.create();
+                        d.show();
+                    }
+                });
             } else if (found.size() == 0) {
-                Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy - Nie znaleziono takiego obiektu! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
-                t.show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy - Nie znaleziono takiego obiektu! Sprawdź pisownię i spróbuj ponownie.", Toast.LENGTH_SHORT);
+                        t.show();
+                    }
+                });
                 return;
             } else {
                 saveEndNavigationData(startPoint, startRoom, startLevel, found.get(0));
             }
         } else {
-            Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy - Błąd danych, spróbuj uruchomić ponownie aplikację.", Toast.LENGTH_SHORT);
-            t.show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy - Błąd danych, spróbuj uruchomić ponownie aplikację.", Toast.LENGTH_SHORT);
+                    t.show();
+                }
+            });
         }
     }
     void finishLocationData(final GeoPoint startPoint, final Integer startRoom, final Integer startLevel, GeoPoint endPoint, Integer endRoom, Integer endLevel) {
@@ -793,8 +841,14 @@ public class NavigateActivity extends AppCompatActivity {
         if ((startPoint == endPoint) || (startPoint != null && endPoint != null && startPoint.getLongitude() == endPoint.getLongitude() && startPoint.getLatitude() == endPoint.getLatitude() &&
                 ((startRoom == endRoom) || (startRoom != null && startLevel != null && startRoom.equals(endRoom) && startLevel.equals(endLevel))))) {
 
-            Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy jest równy punktowi początkowemu. Nawigacja nie została uruchomiona.", Toast.LENGTH_SHORT);
-            t.show();
+            runOnUiThread(new Runnable() {
+                  @Override
+                  public void run() {
+
+                      Toast t = Toast.makeText(NavigateActivity.this, "Punkt końcowy jest równy punktowi początkowemu. Nawigacja nie została uruchomiona.", Toast.LENGTH_SHORT);
+                      t.show();
+                  }
+            });
             setResult(Activity.RESULT_CANCELED);
         } else {
             if (startPoint != null) {
