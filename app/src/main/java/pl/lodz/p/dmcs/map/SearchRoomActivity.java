@@ -59,7 +59,22 @@ public class SearchRoomActivity extends AppCompatActivity {
                                     JSONObject room = rooms.getJSONObject(k);
                                     if (pattern.matcher(room.getString("name")).find())
                                     {
-                                        list.add(obj.getString("name")+" ("+obj.getString("unofficial_name").replace(" ; ", ", ")+", "+obj.getString("number")+")" + "\r\nPiętro " + floor.getInt("level") + "\r\n" + room.getString("name"));
+                                        String unofficial_name = obj.getString("unofficial_name").replace(" ; ",", ");
+                                        String number = obj.getString("number");
+                                        String temp = obj.getString("name");
+                                        if(!unofficial_name.equals("") || !number.equals("")) {
+                                            temp+=" (";
+                                            if (!unofficial_name.equals("")) {
+                                                temp += unofficial_name;
+                                            }
+                                            if (!number.equals("")) {
+                                                if (!unofficial_name.equals("")) temp +=", ";
+                                                temp += number;
+                                            }
+                                            temp+=")";
+                                        }
+                                        
+                                        list.add(temp + "\r\nPiętro " + floor.getInt("level") + "\r\n" + room.getString("name"));
                                         ResultData r = new ResultData();
                                         r.roomID = room.getInt("id");
                                         r.roomLevel = floor.getInt("level");
@@ -70,7 +85,21 @@ public class SearchRoomActivity extends AppCompatActivity {
                             }
                             if (pattern.matcher(obj.getString("name")).find() || pattern.matcher(obj.getString("number")).find() ||pattern.matcher(obj.getString("unofficial_name")).find())
                             {
-                                list.add(obj.getString("name")+" ("+obj.getString("unofficial_name").replace(" ; ", ", ")+", "+obj.getString("number")+")");
+                                String unofficial_name = obj.getString("unofficial_name").replace(" ; ",", ");
+                                String number = obj.getString("number");
+                                String temp = obj.getString("name");
+                                if(!unofficial_name.equals("") || !number.equals("")) {
+                                    temp+=" (";
+                                    if (!unofficial_name.equals("")) {
+                                        temp += unofficial_name;
+                                    }
+                                    if (!number.equals("")) {
+                                        if (!unofficial_name.equals("")) temp +=", ";
+                                        temp += number;
+                                    }
+                                    temp+=")";
+                                }
+                                list.add(temp);
                                 ResultData r = new ResultData();
                                 r.roomID = null;
                                 r.roomLevel = null;
