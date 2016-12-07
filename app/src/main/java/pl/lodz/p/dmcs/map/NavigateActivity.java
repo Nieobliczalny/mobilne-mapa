@@ -216,7 +216,21 @@ public class NavigateActivity extends AppCompatActivity {
                     Budynki temp = new Budynki(name, lng, lat, listaPieter, unofficial_name, number);
                     Log.d("DOOOOOOOG TEMP",temp.toString());
                     listaBudynkow.add(temp);
-                    hintsBuilding.add(temp.getNazwa_Obiektu()+" ; "+temp.getUnofficial_name()+" ; " + temp.getNumber());
+                    String unofficial_name2 = building.getString("unofficial_name").replace(" ; ",", ");
+                    String number2 = building.getString("number");
+                    String temp2 = building.getString("name");
+                    if(!unofficial_name2.equals("") || !number2.equals("")) {
+                        temp2+=" (";
+                        if (!unofficial_name2.equals("")) {
+                            temp2 += unofficial_name2;
+                        }
+                        if (!number2.equals("")) {
+                            if (!unofficial_name2.equals("")) temp2 +=", ";
+                            temp2 += number;
+                        }
+                        temp2+=")";
+                    }
+                    hintsBuilding.add(temp2);
 //                    for(Floor f : listaPieter){
 //                        for(Room r : f.getRooms()){
 //                            hintsRooms.add(r.getRoomName()+", pietro "+f.getLevel());
