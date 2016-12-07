@@ -15,13 +15,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdminActivity extends AppCompatActivity implements AdminBuildingsFragment.OnFragmentInteractionListener, AdminFloorsFragment.OnFragmentInteractionListener, AdminTypesFragment.OnFragmentInteractionListener, AdminAccessFragment.OnFragmentInteractionListener {
+public class AdminActivity extends AppCompatActivity implements AdminBuildingsFragment.OnFragmentInteractionListener, AdminFloorsFragment.OnFragmentInteractionListener, AdminTypesFragment.OnFragmentInteractionListener, AdminAccessFragment.OnFragmentInteractionListener, AdminUNamesFragment.OnFragmentInteractionListener {
 
     protected String token = "";
     protected AdminBuildingsFragment abf = null;
     protected AdminFloorsFragment aff = null;
     protected AdminTypesFragment atf = null;
     protected AdminAccessFragment aaf = null;
+    protected AdminUNamesFragment auf = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (savedInstanceState != null)
@@ -40,6 +41,7 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
         aff = AdminFloorsFragment.newInstance();
         atf = AdminTypesFragment.newInstance();
         aaf = AdminAccessFragment.newInstance();
+        auf = AdminUNamesFragment.newInstance();
 
         //Pobranie danych do abf
         JSONObject data = new JSONObject();
@@ -155,6 +157,29 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
         });
         task5.execute(data5);
 
+        //Pobranie danych do auf
+        JSONObject data6 = new JSONObject();
+        try {
+            data6.put("action", "getUNamesToAccept");
+            data6.put("token", token);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        SendPostTask task6 = new SendPostTask();
+        task6.setActivity(AdminActivity.this);
+        task6.setResponseListener(new JsonResponseListener() {
+            @Override
+            public void onResponse(final JSONObject obj) {
+                try {
+                    auf.setData(obj.getJSONArray("data"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        task6.execute(data6);
+
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         if (viewPager != null) setupViewPager(viewPager);
 
@@ -168,6 +193,7 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
         adapter.addFragment(aff, "Plany pięter");
         adapter.addFragment(atf, "Typy sal");
         adapter.addFragment(aaf, "Dostęp Admina");
+        adapter.addFragment(auf, "Nazwy własne");
         viewPager.setAdapter(adapter);
     }
 
@@ -371,6 +397,58 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
             public void onResponse(final JSONObject obj) {
                 try {
                     aaf.setData(obj.getJSONArray("data"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        task.execute(data);
+    }
+
+    @Override
+    public void onUNameAccept(int reqID) {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("action", "acceptUName");
+            data.put("reqID", reqID);
+            data.put("token", token);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        SendPostTask task = new SendPostTask();
+        task.setActivity(AdminActivity.this);
+        task.setResponseListener(new JsonResponseListener() {
+            @Override
+            public void onResponse(final JSONObject obj) {
+                try {
+                    auf.setData(obj.getJSONArray("data"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        task.execute(data);
+    }
+
+    @Override
+    public void onUNameDecline(int reqID) {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("action", "declineUName");
+            data.put("reqID", reqID);
+            data.put("token", token);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        SendPostTask task = new SendPostTask();
+        task.setActivity(AdminActivity.this);
+        task.setResponseListener(new JsonResponseListener() {
+            @Override
+            public void onResponse(final JSONObject obj) {
+                try {
+                    auf.setData(obj.getJSONArray("data"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
