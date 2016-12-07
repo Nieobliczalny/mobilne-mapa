@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -58,7 +59,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                                     JSONObject room = rooms.getJSONObject(k);
                                     if (pattern.matcher(room.getString("name")).find())
                                     {
-                                        list.add(obj.getString("name") + "\r\nPiętro " + floor.getInt("level") + "\r\n" + room.getString("name"));
+                                        list.add(obj.getString("name")+" ("+obj.getString("unofficial_name").replace(" ; ", ", ")+", "+obj.getString("number")+")" + "\r\nPiętro " + floor.getInt("level") + "\r\n" + room.getString("name"));
                                         ResultData r = new ResultData();
                                         r.roomID = room.getInt("id");
                                         r.roomLevel = floor.getInt("level");
@@ -67,9 +68,9 @@ public class SearchRoomActivity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            if (pattern.matcher(obj.getString("name")).find())
+                            if (pattern.matcher(obj.getString("name")).find() || pattern.matcher(obj.getString("number")).find() ||pattern.matcher(obj.getString("unofficial_name")).find())
                             {
-                                list.add(obj.getString("name"));
+                                list.add(obj.getString("name")+" ("+obj.getString("unofficial_name").replace(" ; ", ", ")+", "+obj.getString("number")+")");
                                 ResultData r = new ResultData();
                                 r.roomID = null;
                                 r.roomLevel = null;
