@@ -38,6 +38,7 @@ public class SearchRoomActivity extends AppCompatActivity {
             btnSearch.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    list.clear();
                     results.clear();
                     EditText searchEdit = (EditText) findViewById(R.id.searchText);
                     if (searchEdit == null) return;
