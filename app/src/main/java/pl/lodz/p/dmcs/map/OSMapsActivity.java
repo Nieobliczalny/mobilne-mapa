@@ -108,15 +108,16 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 for (Overlay i : gpsOverlay.getItems()) {
                     gpsOverlay.remove(i);
                 }
+                MapView map = (MapView) findViewById(R.id.map);
                 GeoPoint p = new GeoPoint(location.getLatitude(), location.getLongitude());
                 Polygon circle = new Polygon(OSMapsActivity.this);
-                circle.setPoints(Polygon.pointsAsCircle(p, 20.0));
+                double size = map != null ? 20.0 / Math.pow(2, Math.max(0, map.getZoomLevel() - 16)) : 20.0;
+                circle.setPoints(Polygon.pointsAsCircle(p, size));
                 circle.setFillColor(0xFF0000FF);
                 circle.setStrokeColor(Color.BLUE);
                 circle.setStrokeWidth(1);
                 circle.setInfoWindow(null);
                 gpsOverlay.add(circle);
-                MapView map = (MapView) findViewById(R.id.map);
                 if (map != null)
                 {
                     map.invalidate();
