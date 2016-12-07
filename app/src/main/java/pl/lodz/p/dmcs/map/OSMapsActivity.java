@@ -95,6 +95,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
 
     protected boolean isSpecialOverlayOpened = false;
     protected boolean isAdmin = false;
+    protected GeoPoint lastKnownLocation = null;
 
     private LocationManager locationManager;
     private LocationListener listener;
@@ -105,31 +106,9 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                for (Overlay i : gpsOverlay.getItems()) {
-                    gpsOverlay.remove(i);
-                }
-                MapView map = (MapView) findViewById(R.id.map);
                 GeoPoint p = new GeoPoint(location.getLatitude(), location.getLongitude());
-                Polygon circle = new Polygon(OSMapsActivity.this);
-                double size = map != null ? 20.0 / Math.pow(2, Math.max(0, map.getZoomLevel() - 16)) : 20.0;
-                circle.setPoints(Polygon.pointsAsCircle(p, size));
-                circle.setFillColor(0xFF0000FF);
-                circle.setStrokeColor(Color.BLUE);
-                circle.setStrokeWidth(1);
-                circle.setInfoWindow(null);
-                gpsOverlay.add(circle);
-                if (map != null)
-                {
-                    map.invalidate();
-                    IMapController mapController = map.getController();
-                    if (centerOnMe)
-                    {
-                        mapController.setCenter(p);
-                        centerOnMe = true;
-                        ImageButton centerBtn = (ImageButton) findViewById(R.id.centerOnMe);
-                        if (centerBtn != null) centerBtn.setBackgroundResource(R.drawable.button_round_selected);
-                    }
-                }
+                lastKnownLocation = new GeoPoint(p);
+                updateMyLocationOverlay(p);
             }
 
             @Override
@@ -338,6 +317,11 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                     }
                     if (!mMap.getOverlays().contains(currentLocationOverlay)) mMap.getOverlays().add(currentLocationOverlay);
                     mMap.invalidate();
+                }
+                int permissionCheckLoc1 = ContextCompat.checkSelfPermission(OSMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
+                int permissionCheckLoc2 = ContextCompat.checkSelfPermission(OSMapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
+                if (permissionCheckLoc1 == PackageManager.PERMISSION_GRANTED || permissionCheckLoc2 == PackageManager.PERMISSION_GRANTED) {
+                    if (lastKnownLocation != null) updateMyLocationOverlay(lastKnownLocation);
                 }
                 return false;
             }
@@ -833,6 +817,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                     {
                         centerBtn.setBackgroundResource(R.drawable.button_round_selected);
                         centerOnMe = true;
+                        if (lastKnownLocation != null) updateMyLocationOverlay(lastKnownLocation);
                     }
                 }
             });
@@ -863,5 +848,34 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
     protected void onResume() {
         super.onResume();
         initLocation();
+    }
+
+    protected void updateMyLocationOverlay(GeoPoint p)
+    {
+        if (gpsOverlay == null || gpsOverlay.getItems() == null) return;
+        for (Overlay i : gpsOverlay.getItems()) {
+            gpsOverlay.remove(i);
+        }
+        MapView map = (MapView) findViewById(R.id.map);
+        Polygon circle = new Polygon(OSMapsActivity.this);
+        double size = map != null ? 20.0 / Math.pow(2, Math.max(0, map.getZoomLevel() - 16)) : 20.0;
+        circle.setPoints(Polygon.pointsAsCircle(p, size));
+        circle.setFillColor(0xFF0000FF);
+        circle.setStrokeColor(Color.BLUE);
+        circle.setStrokeWidth(1);
+        circle.setInfoWindow(null);
+        gpsOverlay.add(circle);
+        if (map != null)
+        {
+            map.invalidate();
+            IMapController mapController = map.getController();
+            if (centerOnMe)
+            {
+                mapController.setCenter(p);
+                centerOnMe = true;
+                ImageButton centerBtn = (ImageButton) findViewById(R.id.centerOnMe);
+                if (centerBtn != null) centerBtn.setBackgroundResource(R.drawable.button_round_selected);
+            }
+        }
     }
 }
