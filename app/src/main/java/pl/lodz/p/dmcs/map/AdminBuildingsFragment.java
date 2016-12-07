@@ -153,7 +153,13 @@ public class AdminBuildingsFragment extends Fragment {
                 TextView textView2 = (TextView) rowView.findViewById(R.id.secondLine);
                 textView2.setText("Dodał: " + values.get(position).getString("nick") + " (ID: " + values.get(position).getInt("user") + ")");
                 TextView textView3 = (TextView) rowView.findViewById(R.id.thirdLine);
-                textView3.setText("Szerokość: " + values.get(position).getDouble("latitude") + "\r\nDługość: " + values.get(position).getDouble("longitude") + "");
+                StringBuffer sb = new StringBuffer();
+                sb.append("Szerokość: " + values.get(position).getDouble("latitude") + "\r\nDługość: " + values.get(position).getDouble("longitude"));
+                String un = values.get(position).getString("unofficial_name");
+                if(!un.equals("")) sb.append("\r\nNazwy nieoficjalne: "+un.replace(" ; ",", "));
+                String number = values.get(position).getString("number");
+                if(!number.equals("")) sb.append("\r\nSymbol: "+number);
+                textView3.setText(sb.toString());
                 Button btnAccept = (Button) rowView.findViewById(R.id.btnAccept);
                 btnAccept.setOnClickListener(new View.OnClickListener() {
                     @Override
