@@ -44,7 +44,7 @@ public class CustomInfoWindow extends BasicInfoWindow {
                     intent.putExtra("token", token);
                     intent.putExtra("type", type);
                     intent.putExtra("id", id);
-                    a.startActivity(intent);
+                    a.startActivityForResult(intent, OSMapsActivity.ACTIVITY_SHOW_ROOM_REQUEST_CODE);
                 }
             }
         });

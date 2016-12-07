@@ -76,12 +76,15 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
     public final static int ACTIVITY_NAVIGATE_REQUEST_CODE = 2;
     public final static int ACTIVITY_SEARCH_REQUEST_CODE = 3;
     private final static int REQUEST_LOCATION = 4;
+    public final static int ACTIVITY_ADMIN_REQUEST_CODE = 5;
+    public final static int ACTIVITY_LIST_REQUEST_CODE = 6;
+    public final static int ACTIVITY_SHOW_ROOM_REQUEST_CODE = 7;
     private String token;
     private JSONArray buildings = null;
     private int level = 0;
     private int minLevel = 0;
     private int maxLevel = 0;
-    private final Map<Integer, List<FolderOverlay>> customLayers = new HashMap<>();
+    private Map<Integer, List<FolderOverlay>> customLayers = new HashMap<>();
     //private ItemizedIconOverlay<OverlayItem> currentLocationOverlay = null;
     private FolderOverlay currentLocationOverlay = new FolderOverlay();
     protected List<Overlay> navigationOverlays = new ArrayList<>();
@@ -596,6 +599,34 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
             //Write your code if there's no result
             //}
         }
+        if (requestCode == ACTIVITY_ADMIN_REQUEST_CODE || requestCode == ACTIVITY_LIST_REQUEST_CODE || requestCode == ACTIVITY_SHOW_ROOM_REQUEST_CODE){
+            if (listener != null) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    locationManager.removeUpdates(listener);
+                }
+            }
+            token = "";
+            buildings = null;
+            level = 0;
+            minLevel = 0;
+            maxLevel = 0;
+            customLayers = new HashMap<>();
+            //private ItemizedIconOverlay<OverlayItem> currentLocationOverlay = null;
+            currentLocationOverlay = new FolderOverlay();
+            navigationOverlays = new ArrayList<>();
+            insideOverlays = new HashMap<>();
+            gpsOverlay = new FolderOverlay();
+
+            isSpecialOverlayOpened = false;
+            isAdmin = false;
+            initActivity();
+            final MapView mMap = (MapView) findViewById(R.id.map);
+            if (mMap != null)
+            {
+                mMap.getOverlays().clear();
+                mMap.invalidate();
+            }
+        }
     }
 
     @Override
@@ -696,12 +727,12 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
             case R.id.menuItemAdmin:
                 intent = new Intent(OSMapsActivity.this, AdminActivity.class);
                 intent.putExtra("token", token);
-                startActivity(intent);
+                startActivityForResult(intent, ACTIVITY_ADMIN_REQUEST_CODE);
                 return true;
             case R.id.menuItemList:
                 intent = new Intent(OSMapsActivity.this, ListActivity.class);
                 intent.putExtra("token", token);
-                startActivity(intent);
+                startActivityForResult(intent, ACTIVITY_LIST_REQUEST_CODE);
                 return true;
             case R.id.menuItemLogout:
                 setResult(RESULT_OK);
