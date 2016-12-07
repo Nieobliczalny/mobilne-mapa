@@ -52,7 +52,21 @@ public class ListActivity extends AppCompatActivity {
                         {
                             JSONObject building = buildings.getJSONObject(i);
                             JSONArray floors = building.getJSONArray("floors");
-                            listDataHeader.add(building.getString("name"));
+                            String unofficial_name = building.getString("unofficial_name").replace(" ; ",", ");
+                            String number = building.getString("number");
+                            String temp = building.getString("name");
+                            if(!unofficial_name.equals("") || !number.equals("")) {
+                                temp+=" (";
+                                if (!unofficial_name.equals("")) {
+                                    temp += unofficial_name;
+                                }
+                                if (!number.equals("")) {
+                                    if (!unofficial_name.equals("")) temp +=", ";
+                                    temp += number;
+                                }
+                                temp+=")";
+                            }
+                            listDataHeader.add(temp);
                             ArrayList<String> list = new ArrayList<>();
                             list.add("Zobacz opinie o budynku");
                             for (int j = 0; j < floors.length(); j++)
