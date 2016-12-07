@@ -585,37 +585,52 @@ public class ShowRoomActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(ShowRoomActivity.this);
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(ShowRoomActivity.this);
                         builder.setTitle("Zaproponuj nowy typ sali")
                                 .setItems(opts, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         // The 'which' argument contains the index position
                                         // of the selected item
-
-                                        JSONObject data = new JSONObject();
+                                        int type = -1;
                                         try {
-                                            data.put("action", "proposeNewRoomType");
-                                            data.put("id", id);
-                                            data.put("type", which);
-                                            data.put("token", token);
-                                        } catch (Exception e){
+                                            type = building.getInt("type");
+                                        } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                        SendPostTask task = new SendPostTask();
-                                        task.setActivity(ShowRoomActivity.this);
-                                        task.setResponseListener(new JsonResponseListener() {
-                                            @Override
-                                            public void onResponse(final JSONObject obj) {
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o typie sali wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
-                                                        t.show();
-                                                    }
-                                                });
+                                        if (which != type) {
+                                            JSONObject data = new JSONObject();
+                                            try {
+                                                data.put("action", "proposeNewRoomType");
+                                                data.put("id", id);
+                                                data.put("type", which);
+                                                data.put("token", token);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                        });
-                                        task.execute(data);
+                                            SendPostTask task = new SendPostTask();
+                                            task.setActivity(ShowRoomActivity.this);
+                                            task.setResponseListener(new JsonResponseListener() {
+                                                @Override
+                                                public void onResponse(final JSONObject obj) {
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o typie sali wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
+                                                            t.show();
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                            task.execute(data);
+                                        } else {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast t = Toast.makeText(ShowRoomActivity.this, "Taka informacja już jest, nie ma potrzeby dodawać ponownie.", Toast.LENGTH_SHORT);
+                                                    t.show();
+                                                }
+                                            });
+                                        }
                                     }
                                 });
                         AlertDialog d = builder.create();
