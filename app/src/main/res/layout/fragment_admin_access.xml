@@ -22,13 +22,16 @@
                 android:elevation="1dp"
                 android:layout_weight="1" />
 
-            <EditText
+
+
+            <AutoCompleteTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
                 android:ems="10"
                 android:id="@+id/userNick"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:inputType="textPersonName"
+                />
 
             <Button
                 android:text="Uczyń Adminem"

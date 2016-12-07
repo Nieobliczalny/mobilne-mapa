@@ -133,6 +133,28 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
         });
         task4.execute(data4);
 
+        JSONObject data5 = new JSONObject();
+        try {
+            data5.put("action", "getUsers");
+            data5.put("token", token);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        SendPostTask task5 = new SendPostTask();
+        task5.setActivity(AdminActivity.this);
+        task5.setResponseListener(new JsonResponseListener() {
+            @Override
+            public void onResponse(final JSONObject obj) {
+                try {
+                    aaf.setHints(obj.getJSONArray("data"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        task5.execute(data5);
+
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         if (viewPager != null) setupViewPager(viewPager);
 

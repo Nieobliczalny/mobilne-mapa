@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -35,6 +37,8 @@ public class AdminAccessFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private JSONArray array = null;
     protected View v = null;
+    private AutoCompleteTextView et = null;
+    private ArrayAdapter<String> hintsUsers = null;
 
     public AdminAccessFragment() {
         // Required empty public constructor
@@ -67,6 +71,10 @@ public class AdminAccessFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_admin_access, container, false);
+        et = (AutoCompleteTextView) view.findViewById(R.id.userNick);
+        hintsUsers = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line);
+
+
         this.v = view;
         if (this.array != null)
         {
@@ -80,7 +88,7 @@ public class AdminAccessFragment extends Fragment {
                 public void onClick(View v) {
                     if (mListener != null)
                     {
-                        EditText et = (EditText) view.findViewById(R.id.userNick);
+
                         if (et != null) {
                             mListener.onAdminAccessGrant(et.getText().toString());
                         }
@@ -143,6 +151,26 @@ public class AdminAccessFragment extends Fragment {
             listView.setAdapter(adapter);
 
             adapter.notifyDataSetChanged();
+        } catch (Exception e) {
+            //
+        }
+    }
+
+
+    public void setHints(JSONArray array) {
+        try {
+            if(array == null) return;
+            Log.d(array.toString(),array.toString());
+
+            for (int i = 0; i < array.length(); i++){
+                JSONObject user = array.getJSONObject(i);
+                Log.d(user.toString(),user.toString());
+                String nick = user.getString("nick");
+                hintsUsers.add(nick);
+            }
+            et.setAdapter(hintsUsers);
+
+
         } catch (Exception e) {
             //
         }
