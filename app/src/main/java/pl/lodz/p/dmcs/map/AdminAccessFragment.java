@@ -36,6 +36,7 @@ import java.util.ArrayList;
 public class AdminAccessFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private JSONArray array = null;
+    private JSONArray hints = null;
     protected View v = null;
     private AutoCompleteTextView et = null;
     private ArrayAdapter<String> hintsUsers = null;
@@ -79,6 +80,10 @@ public class AdminAccessFragment extends Fragment {
         if (this.array != null)
         {
             setData(this.array, view);
+        }
+        if (this.hints != null)
+        {
+            setHints(this.hints, view);
         }
         Button btnGrant = (Button) view.findViewById(R.id.btnMakeAdmin);
         if (btnGrant != null)
@@ -156,8 +161,14 @@ public class AdminAccessFragment extends Fragment {
         }
     }
 
-
     public void setHints(JSONArray array) {
+        View v = getView();
+        if (v == null) v = this.v;
+        this.hints = array;
+        setHints(hints, v);
+    }
+
+    public void setHints(JSONArray array, View v) {
         try {
             if(array == null) return;
             Log.d(array.toString(),array.toString());
