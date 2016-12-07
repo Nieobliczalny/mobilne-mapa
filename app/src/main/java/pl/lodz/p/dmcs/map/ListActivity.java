@@ -56,7 +56,7 @@ public class ListActivity extends AppCompatActivity {
                             String number = building.getString("number");
                             String temp = building.getString("name");
                             if(!unofficial_name.equals("") || !number.equals("")) {
-                                temp+=" (";
+                                temp+=" ( ";
                                 if (!unofficial_name.equals("")) {
                                     temp += unofficial_name;
                                 }
@@ -64,7 +64,7 @@ public class ListActivity extends AppCompatActivity {
                                     if (!unofficial_name.equals("")) temp +=", ";
                                     temp += number;
                                 }
-                                temp+=")";
+                                temp+=" )";
                             }
                             listDataHeader.add(temp);
                             ArrayList<String> list = new ArrayList<>();

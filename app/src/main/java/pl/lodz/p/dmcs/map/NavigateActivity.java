@@ -220,7 +220,7 @@ public class NavigateActivity extends AppCompatActivity {
                     String number2 = building.getString("number");
                     String temp2 = building.getString("name");
                     if(!unofficial_name2.equals("") || !number2.equals("")) {
-                        temp2+=" (";
+                        temp2+=" ( ";
                         if (!unofficial_name2.equals("")) {
                             temp2 += unofficial_name2;
                         }
@@ -228,7 +228,7 @@ public class NavigateActivity extends AppCompatActivity {
                             if (!unofficial_name2.equals("")) temp2 +=", ";
                             temp2 += number;
                         }
-                        temp2+=")";
+                        temp2+=" )";
                     }
                     hintsBuilding.add(temp2);
 //                    for(Floor f : listaPieter){

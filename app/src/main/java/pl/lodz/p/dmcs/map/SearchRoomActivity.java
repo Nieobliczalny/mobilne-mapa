@@ -63,7 +63,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                                         String number = obj.getString("number");
                                         String temp = obj.getString("name");
                                         if(!unofficial_name.equals("") || !number.equals("")) {
-                                            temp+=" (";
+                                            temp+=" ( ";
                                             if (!unofficial_name.equals("")) {
                                                 temp += unofficial_name;
                                             }
@@ -71,7 +71,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                                                 if (!unofficial_name.equals("")) temp +=", ";
                                                 temp += number;
                                             }
-                                            temp+=")";
+                                            temp+=" )";
                                         }
                                         
                                         list.add(temp + "\r\nPiętro " + floor.getInt("level") + "\r\n" + room.getString("name"));
@@ -89,7 +89,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                                 String number = obj.getString("number");
                                 String temp = obj.getString("name");
                                 if(!unofficial_name.equals("") || !number.equals("")) {
-                                    temp+=" (";
+                                    temp+=" ( ";
                                     if (!unofficial_name.equals("")) {
                                         temp += unofficial_name;
                                     }
@@ -97,7 +97,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                                         if (!unofficial_name.equals("")) temp +=", ";
                                         temp += number;
                                     }
-                                    temp+=")";
+                                    temp+=" )";
                                 }
                                 list.add(temp);
                                 ResultData r = new ResultData();
