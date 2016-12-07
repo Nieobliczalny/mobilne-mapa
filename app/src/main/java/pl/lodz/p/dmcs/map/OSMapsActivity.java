@@ -108,7 +108,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 }
                 GeoPoint p = new GeoPoint(location.getLatitude(), location.getLongitude());
                 Polygon circle = new Polygon(OSMapsActivity.this);
-                circle.setPoints(Polygon.pointsAsCircle(p, 10.0));
+                circle.setPoints(Polygon.pointsAsCircle(p, 20.0));
                 circle.setFillColor(0xFF0000FF);
                 circle.setStrokeColor(Color.BLUE);
                 circle.setStrokeWidth(1);

@@ -436,32 +436,55 @@ public class ShowRoomActivity extends AppCompatActivity {
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String m_Text = input.getText().toString();
-                        JSONObject data = new JSONObject();
+                        String m_Text = input.getText().toString().trim();
+                        if (m_Text.equals("")) return;
+                        String txt = "";
                         try {
-                            data.put("action", "proposeNewBuildingUName");
-                            data.put("id", id);
-                            data.put("name", m_Text);
-                            data.put("token", token);
-                            android.util.Log.i("XXXD", data.toString());
-                        } catch (Exception e){
+                            txt = building.getString("unofficial_name");
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        SendPostTask task = new SendPostTask();
-                        task.setActivity(ShowRoomActivity.this);
-                        task.setResponseListener(new JsonResponseListener() {
-                            @Override
-                            public void onResponse(final JSONObject obj) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o nowej nazwie wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
-                                        t.show();
-                                    }
-                                });
+                        String[] names = txt.split(" ; ");
+                        boolean nameExists = false;
+                        for (int i = 0; i < names.length; i++)
+                        {
+                            if (m_Text.equalsIgnoreCase(names[i].trim())) nameExists = true;
+                        }
+                        if (!nameExists) {
+                            JSONObject data = new JSONObject();
+                            try {
+                                data.put("action", "proposeNewBuildingUName");
+                                data.put("id", id);
+                                data.put("name", m_Text);
+                                data.put("token", token);
+                                android.util.Log.i("XXXD", data.toString());
+                            } catch (Exception e){
+                                e.printStackTrace();
                             }
-                        });
-                        task.execute(data);
+                            SendPostTask task = new SendPostTask();
+                            task.setActivity(ShowRoomActivity.this);
+                            task.setResponseListener(new JsonResponseListener() {
+                                @Override
+                                public void onResponse(final JSONObject obj) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o nowej nazwie wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
+                                            t.show();
+                                        }
+                                    });
+                                }
+                            });
+                            task.execute(data);
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast t = Toast.makeText(ShowRoomActivity.this, "Taka informacja już jest, nie ma potrzeby dodawać ponownie.", Toast.LENGTH_SHORT);
+                                    t.show();
+                                }
+                            });
+                        }
                     }
                 });
                 builder.setNegativeButton("Anuluj", new DialogInterface.OnClickListener() {
@@ -489,32 +512,49 @@ public class ShowRoomActivity extends AppCompatActivity {
                 builder2.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String m_Text = input2.getText().toString();
-                        JSONObject data = new JSONObject();
+                        String m_Text = input2.getText().toString().trim();
+                        if (m_Text.equals("")) return;
+                        String txt = "";
                         try {
-                            data.put("action", "proposeNewBuildingSymbol");
-                            data.put("id", id);
-                            data.put("name", m_Text);
-                            data.put("token", token);
-                            android.util.Log.i("XXXD", data.toString());
-                        } catch (Exception e){
+                            txt = building.getString("number");
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        SendPostTask task = new SendPostTask();
-                        task.setActivity(ShowRoomActivity.this);
-                        task.setResponseListener(new JsonResponseListener() {
-                            @Override
-                            public void onResponse(final JSONObject obj) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o nowym symbolu wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
-                                        t.show();
-                                    }
-                                });
+                        if (!m_Text.equalsIgnoreCase(txt)) {
+                            JSONObject data = new JSONObject();
+                            try {
+                                data.put("action", "proposeNewBuildingSymbol");
+                                data.put("id", id);
+                                data.put("name", m_Text);
+                                data.put("token", token);
+                                android.util.Log.i("XXXD", data.toString());
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        });
-                        task.execute(data);
+                            SendPostTask task = new SendPostTask();
+                            task.setActivity(ShowRoomActivity.this);
+                            task.setResponseListener(new JsonResponseListener() {
+                                @Override
+                                public void onResponse(final JSONObject obj) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o nowym symbolu wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
+                                            t.show();
+                                        }
+                                    });
+                                }
+                            });
+                            task.execute(data);
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast t = Toast.makeText(ShowRoomActivity.this, "Taka informacja już jest, nie ma potrzeby dodawać ponownie.", Toast.LENGTH_SHORT);
+                                    t.show();
+                                }
+                            });
+                        }
                     }
                 });
                 builder2.setNegativeButton("Anuluj", new DialogInterface.OnClickListener() {
