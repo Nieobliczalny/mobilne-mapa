@@ -1,5 +1,7 @@
 package pl.lodz.p.dmcs.map;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 
 /**
@@ -16,14 +18,16 @@ public class Budynki {
     private ArrayList<Floor> floors;
     private String unofficial_name;
     private String number;
+    private JSONArray units;
 
-    public Budynki(String nazwa_Obiektu, double aLong, double lat, ArrayList<Floor> floors, String unofficial_name, String number) {
+    public Budynki(String nazwa_Obiektu, double aLong, double lat, ArrayList<Floor> floors, String unofficial_name, String number, JSONArray units) {
         Nazwa_Obiektu = nazwa_Obiektu;
         Long = aLong;
         Lat = lat;
         this.floors = floors;
         this.unofficial_name = unofficial_name;
         this.number = number;
+        this.units = units;
     }
 
     public String getNazwa_Obiektu() {
@@ -68,6 +72,14 @@ public class Budynki {
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    public JSONArray getUnits() {
+        return units;
+    }
+
+    public void setUnits(JSONArray units) {
+        this.units = units;
     }
 
     @Override

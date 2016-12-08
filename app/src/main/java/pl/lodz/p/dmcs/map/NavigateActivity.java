@@ -213,7 +213,7 @@ public class NavigateActivity extends AppCompatActivity {
                         Floor temp2 = new Floor(listaPomieszczen,idBudynku,numerPietra,new ArrayList<Double>());
                         listaPieter.add(temp2);
                     }
-                    Budynki temp = new Budynki(name, lng, lat, listaPieter, unofficial_name, number);
+                    Budynki temp = new Budynki(name, lng, lat, listaPieter, unofficial_name, number, building.getJSONArray("units"));
                     Log.d("DOOOOOOOG TEMP",temp.toString());
                     listaBudynkow.add(temp);
 
