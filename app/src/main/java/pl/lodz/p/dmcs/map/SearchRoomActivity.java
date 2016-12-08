@@ -62,7 +62,8 @@ public class SearchRoomActivity extends AppCompatActivity {
                                         String unofficial_name = obj.getString("unofficial_name").replace(" ; ",", ");
                                         String number = obj.getString("number");
                                         String temp = obj.getString("name");
-                                        if(!unofficial_name.equals("") || !number.equals("")) {
+                                        JSONArray units = obj.getJSONArray("units");
+                                        if(!unofficial_name.equals("") || !number.equals("") || units.length() != 0){
                                             temp+=" ( ";
                                             if (!unofficial_name.equals("")) {
                                                 temp += unofficial_name;
@@ -70,6 +71,29 @@ public class SearchRoomActivity extends AppCompatActivity {
                                             if (!number.equals("")) {
                                                 if (!unofficial_name.equals("")) temp +=", ";
                                                 temp += number;
+                                            }
+                                            if(units.length() != 0){
+                                                if (!unofficial_name.equals("") || !number.equals("")) temp +=", ";
+                                                for (int z = 0; z < units.length(); z++)
+                                                {
+                                                    JSONObject unit = units.getJSONObject(z);
+                                                    String name = unit.getString("name");
+                                                    String unofficial_name2 = unit.getString("unofficial_name").replace(" ; ",", ");
+                                                    String symbol = unit.getString("symbol");
+                                                    if(z > 0) temp+=", ";
+                                                    temp+=name;
+                                                    if(!unofficial_name2.equals("") || !symbol.equals("")) {
+                                                        temp+=" ( ";
+                                                        if (!unofficial_name2.equals("")) {
+                                                            temp += unofficial_name2;
+                                                        }
+                                                        if (!symbol.equals("")) {
+                                                            if (!unofficial_name2.equals("")) temp +=", ";
+                                                            temp += number;
+                                                        }
+                                                        temp+=" )";
+                                                    }
+                                                }
                                             }
                                             temp+=" )";
                                         }
@@ -83,12 +107,13 @@ public class SearchRoomActivity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            if (pattern.matcher(obj.getString("name")).find() || pattern.matcher(obj.getString("number")).find() ||pattern.matcher(obj.getString("unofficial_name")).find())
+                            if (pattern.matcher(obj.getString("name")).find() || pattern.matcher(obj.getString("number")).find() || pattern.matcher(obj.getString("unofficial_name")).find())
                             {
                                 String unofficial_name = obj.getString("unofficial_name").replace(" ; ",", ");
                                 String number = obj.getString("number");
                                 String temp = obj.getString("name");
-                                if(!unofficial_name.equals("") || !number.equals("")) {
+                                JSONArray units = obj.getJSONArray("units");
+                                if(!unofficial_name.equals("") || !number.equals("") || units.length() != 0){
                                     temp+=" ( ";
                                     if (!unofficial_name.equals("")) {
                                         temp += unofficial_name;
@@ -96,6 +121,29 @@ public class SearchRoomActivity extends AppCompatActivity {
                                     if (!number.equals("")) {
                                         if (!unofficial_name.equals("")) temp +=", ";
                                         temp += number;
+                                    }
+                                    if(units.length() != 0){
+                                        if (!unofficial_name.equals("") || !number.equals("")) temp +=", ";
+                                        for (int z = 0; z < units.length(); z++)
+                                        {
+                                            JSONObject unit = units.getJSONObject(z);
+                                            String name = unit.getString("name");
+                                            String unofficial_name2 = unit.getString("unofficial_name").replace(" ; ",", ");
+                                            String symbol = unit.getString("symbol");
+                                            if(z > 0) temp+=", ";
+                                            temp+=name;
+                                            if(!unofficial_name2.equals("") || !symbol.equals("")) {
+                                                temp+=" ( ";
+                                                if (!unofficial_name2.equals("")) {
+                                                    temp += unofficial_name2;
+                                                }
+                                                if (!symbol.equals("")) {
+                                                    if (!unofficial_name2.equals("")) temp +=", ";
+                                                    temp += number;
+                                                }
+                                                temp+=" )";
+                                            }
+                                        }
                                     }
                                     temp+=" )";
                                 }
