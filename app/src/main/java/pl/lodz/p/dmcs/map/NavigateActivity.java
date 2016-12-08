@@ -382,7 +382,8 @@ public class NavigateActivity extends AppCompatActivity {
                                 ArrayList<String> items = new ArrayList<String>();
                                 for (Budynki b : found)
                                 {
-                                    items.add(b.getNazwa_Obiektu()+" ; "+b.getUnofficial_name()+" ; "+b.getNumber());
+                                    String temp = b.getUnofficial_name().replace(" ; ",", ");
+                                    items.add(b.getNazwa_Obiektu()+" , "+temp+" , "+b.getNumber());
                                 }
                                 String[] opts = new String[items.size()];
                                 for (int i = 0; i < opts.length; i++) {
@@ -811,7 +812,8 @@ public class NavigateActivity extends AppCompatActivity {
                 ArrayList<String> items = new ArrayList<String>();
                 for (Budynki b : found)
                 {
-                    items.add(b.getNazwa_Obiektu());
+                    String temp = b.getUnofficial_name().replace(" ; ",", ");
+                    items.add(b.getNazwa_Obiektu()+" , "+temp+" , "+b.getNumber());
                 }
                 final String[] opts = new String[items.size()];
                 for (int i = 0; i < opts.length; i++) {
