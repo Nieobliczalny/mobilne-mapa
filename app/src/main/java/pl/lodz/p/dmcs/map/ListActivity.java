@@ -56,7 +56,7 @@ public class ListActivity extends AppCompatActivity {
                             String number = building.getString("number");
                             String temp = building.getString("name");
                             JSONArray units = building.getJSONArray("units");
-                            if(!unofficial_name.equals("") || !number.equals("") || !units.equals("")){
+                            if(!unofficial_name.equals("") || !number.equals("") || units.length() != 0){
                                 temp+=" ( ";
                                 if (!unofficial_name.equals("")) {
                                     temp += unofficial_name;
@@ -65,7 +65,7 @@ public class ListActivity extends AppCompatActivity {
                                     if (!unofficial_name.equals("")) temp +=", ";
                                     temp += number;
                                 }
-                                if(!units.equals("")){
+                                if(units.length() != 0){
                                     if (!unofficial_name.equals("") || !number.equals("")) temp +=", ";
                                     for (int z = 0; z < units.length(); z++)
                                     {
