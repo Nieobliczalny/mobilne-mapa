@@ -434,6 +434,7 @@ public class ShowRoomActivity extends AppCompatActivity {
             menu.findItem(R.id.menuAddUName).setVisible(true);
             menu.findItem(R.id.menuChangeNumber).setVisible(true);
             menu.findItem(R.id.menuAddUnit).setVisible(true);
+            menu.findItem(R.id.menuShowUnits).setVisible(true);
             menu.findItem(R.id.menuRoomType).setVisible(false);
         }
         else
@@ -441,6 +442,7 @@ public class ShowRoomActivity extends AppCompatActivity {
             menu.findItem(R.id.menuAddUName).setVisible(false);
             menu.findItem(R.id.menuChangeNumber).setVisible(false);
             menu.findItem(R.id.menuAddUnit).setVisible(false);
+            menu.findItem(R.id.menuShowUnits).setVisible(false);
             menu.findItem(R.id.menuRoomType).setVisible(true);
         }
         return true;
@@ -739,6 +741,42 @@ public class ShowRoomActivity extends AppCompatActivity {
                         d.show();
                     }
                 });
+                return true;
+            case R.id.menuShowUnits:
+                try {
+                    JSONArray bu = building.getJSONArray("units");
+                    final String[] opts3 = new String[bu.length()];
+                    for (int i = 0; i < opts3.length; i++) {
+                        try {
+                            JSONObject u = units.getJSONObject(i);
+                            String name = u.getString("name");
+                            String uName = u.getString("unofficial_name").replace(" ; ", ", ");
+                            String symbol = u.getString("symbol");
+                            if (uName.length() < 1) uName = symbol;
+                            else if (symbol.length() > 0) uName = uName + ", " + symbol;
+
+                            opts3[i] = name + " (" + uName + ")";
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(ShowRoomActivity.this);
+                            builder.setTitle("Jednostki korzystające z tego budynku")
+                                    .setItems(opts3, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            //
+                                        }
+                                    });
+                            AlertDialog d = builder.create();
+                            d.show();
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
