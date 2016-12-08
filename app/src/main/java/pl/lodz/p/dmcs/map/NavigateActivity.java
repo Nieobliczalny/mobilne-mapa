@@ -912,6 +912,27 @@ public class NavigateActivity extends AppCompatActivity {
         {
             if (uName.length() > 0 && searchValue.contains(uName)) return true;
         }
+        for (int i = 0; i < b.getUnits().length(); i++)
+        {
+            try {
+                JSONObject unit = b.getUnits().getJSONObject(i);
+                String unitName = unit.getString("name");
+                String unitUName = unit.getString("unofficial_name");
+                String unitSymbol = unit.getString("symbol");
+                if (unitName.contains(searchValue)) return true;
+                else if (unitSymbol.contains(searchValue)) return true;
+                else if (unitUName.contains(searchValue)) return true;
+                else if (unitName.length() > 0 && searchValue.contains(unitName)) return true;
+                else if (unitSymbol.length() > 0 && searchValue.contains(unitSymbol)) return true;
+                else if (unitUName.length() > 0 && searchValue.contains(unitUName)) return true;
+                String[] unitUNames = unitUName.split(" ; ");
+                for (String uName : unitUNames) {
+                    if (uName.length() > 0 && searchValue.contains(uName)) return true;
+                }
+            } catch (JSONException e) {
+                //
+            }
+        }
         return false;
     }
     public boolean isRoomMatch(Room r, String searchValue)
