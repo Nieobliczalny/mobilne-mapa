@@ -55,7 +55,8 @@ public class ListActivity extends AppCompatActivity {
                             String unofficial_name = building.getString("unofficial_name").replace(" ; ",", ");
                             String number = building.getString("number");
                             String temp = building.getString("name");
-                            if(!unofficial_name.equals("") || !number.equals("")) {
+                            JSONArray units = building.getJSONArray("units");
+                            if(!unofficial_name.equals("") || !number.equals("") || !units.equals("")){
                                 temp+=" ( ";
                                 if (!unofficial_name.equals("")) {
                                     temp += unofficial_name;
@@ -64,8 +65,32 @@ public class ListActivity extends AppCompatActivity {
                                     if (!unofficial_name.equals("")) temp +=", ";
                                     temp += number;
                                 }
+                                if(!units.equals("")){
+                                    if (!unofficial_name.equals("") || !number.equals("")) temp +=", ";
+                                    for (int z = 0; z < units.length(); z++)
+                                    {
+                                        JSONObject unit = units.getJSONObject(z);
+                                        String name = unit.getString("name");
+                                        String unofficial_name2 = unit.getString("unofficial_name").replace(" ; ",", ");
+                                        String symbol = unit.getString("symbol");
+                                        if(z > 0) temp+=", ";
+                                        temp+=name;
+                                        if(!unofficial_name2.equals("") || !symbol.equals("")) {
+                                            temp+=" ( ";
+                                            if (!unofficial_name2.equals("")) {
+                                                temp += unofficial_name2;
+                                            }
+                                            if (!symbol.equals("")) {
+                                                if (!unofficial_name2.equals("")) temp +=", ";
+                                                temp += number;
+                                            }
+                                            temp+=" )";
+                                        }
+                                    }
+                                }
                                 temp+=" )";
                             }
+
                             listDataHeader.add(temp);
                             ArrayList<String> list = new ArrayList<>();
                             list.add("Zobacz opinie o budynku");
