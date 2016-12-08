@@ -682,19 +682,29 @@ public class ShowRoomActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         // The 'which' argument contains the index position
                                         // of the selected item
-                                        int type = -1;
+                                        int unit = -1;
                                         try {
-                                            type = building.getInt("type");
+                                            unit = units.getJSONObject(which).getInt("id");
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                        //TODO: Blokada gdy jednostka jest przypisana do budynku
-                                        if (true || which != type) {
+                                        boolean isAdded = false;
+                                        try {
+                                            JSONArray u = building.getJSONArray("units");
+                                            for (int i = 0; i < u.length(); i++) {
+                                                if (u.getJSONObject(i).getInt("id") == unit)
+                                                    isAdded = true;
+                                            }
+                                        } catch (JSONException e){
+                                            //
+                                        }
+                                        //Blokada gdy jednostka jest przypisana do budynku
+                                        if (!isAdded) {
                                             JSONObject data = new JSONObject();
                                             try {
                                                 data.put("action", "proposeNewUnit");
                                                 data.put("id", id);
-                                                data.put("unit", units.getJSONObject(which).getInt("id"));
+                                                data.put("unit", unit);
                                                 data.put("token", token);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
