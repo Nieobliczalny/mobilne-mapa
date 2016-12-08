@@ -21,6 +21,10 @@
         android:id="@+id/menuItemAddBuilding"
         android:visible="true"
         android:enabled="true" />
+    <item android:title="Dodaj jednostkę"
+        android:id="@+id/menuItemAddUnit"
+        android:visible="true"
+        android:enabled="true" />
     <item android:title="Administracja"
         android:id="@+id/menuItemAdmin"
         android:visible="false"

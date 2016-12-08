@@ -723,6 +723,11 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 intent.putExtra("token", token);
                 startActivity(intent);
                 return true;
+            case R.id.menuItemAddUnit:
+                intent = new Intent(OSMapsActivity.this, AddUnitActivity.class);
+                intent.putExtra("token", token);
+                startActivity(intent);
+                return true;
             case R.id.menuItemAdmin:
                 intent = new Intent(OSMapsActivity.this, AdminActivity.class);
                 intent.putExtra("token", token);
