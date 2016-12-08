@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdminActivity extends AppCompatActivity implements AdminBuildingsFragment.OnFragmentInteractionListener, AdminFloorsFragment.OnFragmentInteractionListener, AdminTypesFragment.OnFragmentInteractionListener, AdminAccessFragment.OnFragmentInteractionListener, AdminUNamesFragment.OnFragmentInteractionListener, AdminSymbolsFragment.OnFragmentInteractionListener, AdminUnitsFragment.OnFragmentInteractionListener {
+public class AdminActivity extends AppCompatActivity implements AdminBuildingsFragment.OnFragmentInteractionListener, AdminFloorsFragment.OnFragmentInteractionListener, AdminTypesFragment.OnFragmentInteractionListener, AdminAccessFragment.OnFragmentInteractionListener, AdminUNamesFragment.OnFragmentInteractionListener, AdminSymbolsFragment.OnFragmentInteractionListener, AdminUnitsFragment.OnFragmentInteractionListener, AdminBuildingUnitsFragment.OnFragmentInteractionListener {
 
     protected String token = "";
     protected AdminBuildingsFragment abf = null;
@@ -25,6 +25,7 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
     protected AdminUNamesFragment auf = null;
     protected AdminSymbolsFragment asf = null;
     protected AdminUnitsFragment adminUnitsFragment = null;
+    protected AdminBuildingUnitsFragment adminBuildingUnitsFragment = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (savedInstanceState != null)
@@ -46,6 +47,7 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
         auf = AdminUNamesFragment.newInstance();
         asf = AdminSymbolsFragment.newInstance();
         adminUnitsFragment = AdminUnitsFragment.newInstance();
+        adminBuildingUnitsFragment = AdminBuildingUnitsFragment.newInstance();
 
         //Pobranie danych do abf
         JSONObject data = new JSONObject();
@@ -230,6 +232,29 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
         });
         task8.execute(data8);
 
+        //Pobranie danych do adminUnitsFragment
+        JSONObject data9 = new JSONObject();
+        try {
+            data9.put("action", "getBuildingUnitsToAccept");
+            data9.put("token", token);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        SendPostTask task9 = new SendPostTask();
+        task9.setActivity(AdminActivity.this);
+        task9.setResponseListener(new JsonResponseListener() {
+            @Override
+            public void onResponse(final JSONObject obj) {
+                try {
+                    adminBuildingUnitsFragment.setData(obj.getJSONArray("data"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        task9.execute(data9);
+
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         if (viewPager != null) setupViewPager(viewPager);
 
@@ -246,6 +271,7 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
         adapter.addFragment(auf, "Nazwy własne");
         adapter.addFragment(asf, "Symbole");
         adapter.addFragment(adminUnitsFragment, "Jednostki");
+        adapter.addFragment(adminBuildingUnitsFragment, "Jednostki w budynkach");
         viewPager.setAdapter(adapter);
     }
 
@@ -605,6 +631,58 @@ public class AdminActivity extends AppCompatActivity implements AdminBuildingsFr
             public void onResponse(final JSONObject obj) {
                 try {
                     adminUnitsFragment.setData(obj.getJSONArray("data"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        task.execute(data);
+    }
+
+    @Override
+    public void onBuildingUnitAccept(int reqID) {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("action", "acceptBuildingUnit");
+            data.put("reqID", reqID);
+            data.put("token", token);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        SendPostTask task = new SendPostTask();
+        task.setActivity(AdminActivity.this);
+        task.setResponseListener(new JsonResponseListener() {
+            @Override
+            public void onResponse(final JSONObject obj) {
+                try {
+                    adminBuildingUnitsFragment.setData(obj.getJSONArray("data"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        task.execute(data);
+    }
+
+    @Override
+    public void onBuildingUnitDecline(int reqID) {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("action", "declineBuildingUnit");
+            data.put("reqID", reqID);
+            data.put("token", token);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        SendPostTask task = new SendPostTask();
+        task.setActivity(AdminActivity.this);
+        task.setResponseListener(new JsonResponseListener() {
+            @Override
+            public void onResponse(final JSONObject obj) {
+                try {
+                    adminBuildingUnitsFragment.setData(obj.getJSONArray("data"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
