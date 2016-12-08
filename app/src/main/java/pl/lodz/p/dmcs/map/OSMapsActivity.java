@@ -62,6 +62,9 @@ import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
+import org.osmdroid.views.overlay.mylocation.IMyLocationConsumer;
+import org.osmdroid.views.overlay.mylocation.IMyLocationProvider;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -72,7 +75,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiver {
+public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiver, IMyLocationProvider {
     private final static int REQUEST_WRITE_STORAGE = 1;
     public final static int ACTIVITY_NAVIGATE_REQUEST_CODE = 2;
     public final static int ACTIVITY_SEARCH_REQUEST_CODE = 3;
@@ -99,6 +102,10 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
 
     private LocationManager locationManager;
     private LocationListener listener;
+    protected Location lastLocation = null;
+    IMyLocationConsumer locationConsumer = null;
+
+    private MyLocationNewOverlay myLocationOverlay;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,9 +113,12 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                lastLocation = location;
                 GeoPoint p = new GeoPoint(location.getLatitude(), location.getLongitude());
                 lastKnownLocation = new GeoPoint(p);
+                //locationConsumer.onLocationChanged(location, OSMapsActivity.this);
                 updateMyLocationOverlay(p);
+                android.util.Log.i("LOCLOC", location.toString());
             }
 
             @Override
@@ -327,9 +337,11 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
             }
 
             public boolean onScroll(ScrollEvent arg0) {
-                centerOnMe = false;
-                ImageButton centerBtn = (ImageButton) findViewById(R.id.centerOnMe);
-                centerBtn.setBackgroundResource(R.drawable.button_round);
+                if (!myLocationOverlay.isFollowLocationEnabled()) {
+                    centerOnMe = false;
+                    ImageButton centerBtn = (ImageButton) findViewById(R.id.centerOnMe);
+                    centerBtn.setBackgroundResource(R.drawable.button_round);
+                }
                 return false;
             }
         } );
@@ -809,6 +821,12 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, listener);
             centerOnMe = false;
+            final MapView map = (MapView) findViewById(R.id.map);
+            myLocationOverlay = new MyLocationNewOverlay(map); //new MyLocationNewOverlay(OSMapsActivity.this, map);
+            myLocationOverlay.enableMyLocation();
+            myLocationOverlay.setDrawAccuracyEnabled(true);
+            map.getOverlays().add(myLocationOverlay);
+            map.invalidate();
             final ImageButton centerBtn = (ImageButton) findViewById(R.id.centerOnMe);
             centerBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -816,13 +834,21 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                     if (centerOnMe)
                     {
                         centerBtn.setBackgroundResource(R.drawable.button_round);
-                        centerOnMe = false;;
+                        centerOnMe = false;
+                        if (myLocationOverlay != null) myLocationOverlay.disableFollowLocation();
+
                     }
                     else
                     {
                         centerBtn.setBackgroundResource(R.drawable.button_round_selected);
                         centerOnMe = true;
-                        if (lastKnownLocation != null) updateMyLocationOverlay(lastKnownLocation);
+                        if (myLocationOverlay != null) myLocationOverlay.enableFollowLocation();
+                        if (lastKnownLocation != null) {
+                            IMapController mapController = map.getController();
+                            if (centerOnMe) {
+                                mapController.setCenter(lastKnownLocation);
+                            }
+                        }
                     }
                 }
             });
@@ -857,11 +883,11 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
 
     protected void updateMyLocationOverlay(GeoPoint p)
     {
+        /*
         if (gpsOverlay == null || gpsOverlay.getItems() == null) return;
         for (Overlay i : gpsOverlay.getItems()) {
             gpsOverlay.remove(i);
         }
-        MapView map = (MapView) findViewById(R.id.map);
         Polygon circle = new Polygon(OSMapsActivity.this);
         double size = map != null ? 20.0 / Math.pow(2, Math.max(0, map.getZoomLevel() - 16)) : 20.0;
         circle.setPoints(Polygon.pointsAsCircle(p, size));
@@ -882,5 +908,27 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                 if (centerBtn != null) centerBtn.setBackgroundResource(R.drawable.button_round_selected);
             }
         }
+        */
+    }
+
+    @Override
+    public boolean startLocationProvider(IMyLocationConsumer iMyLocationConsumer) {
+        locationConsumer = iMyLocationConsumer;
+        return false;
+    }
+
+    @Override
+    public void stopLocationProvider() {
+
+    }
+
+    @Override
+    public Location getLastKnownLocation() {
+        return lastLocation;
+    }
+
+    @Override
+    public void destroy() {
+
     }
 }
