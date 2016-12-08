@@ -75,7 +75,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiver, IMyLocationProvider {
+public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiver {//}, IMyLocationProvider {
     private final static int REQUEST_WRITE_STORAGE = 1;
     public final static int ACTIVITY_NAVIGATE_REQUEST_CODE = 2;
     public final static int ACTIVITY_SEARCH_REQUEST_CODE = 3;
@@ -846,6 +846,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
                         if (lastKnownLocation != null) {
                             IMapController mapController = map.getController();
                             if (centerOnMe) {
+                                myLocationOverlay.onLocationChanged(lastLocation, null);
                                 mapController.setCenter(lastKnownLocation);
                             }
                         }
@@ -910,7 +911,7 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
         }
         */
     }
-
+/*
     @Override
     public boolean startLocationProvider(IMyLocationConsumer iMyLocationConsumer) {
         locationConsumer = iMyLocationConsumer;
@@ -931,4 +932,5 @@ public class OSMapsActivity extends AppCompatActivity implements MapEventsReceiv
     public void destroy() {
 
     }
+    */
 }
