@@ -382,8 +382,13 @@ public class NavigateActivity extends AppCompatActivity {
                                 ArrayList<String> items = new ArrayList<String>();
                                 for (Budynki b : found)
                                 {
-                                    String temp = b.getUnofficial_name().replace(" ; ",", ");
-                                    items.add(b.getNazwa_Obiektu()+" , "+temp+" , "+b.getNumber());
+                                    String temp = "";
+                                    temp+=b.getNazwa_Obiektu().trim();
+                                    String un = b.getUnofficial_name().replace(" ; ",", ");
+                                    if(!un.equals("")) temp+=", "+un;
+                                    String number = b.getNumber();
+                                    if(!number.equals("")) temp+=", "+number;
+                                    items.add(temp);
                                 }
                                 String[] opts = new String[items.size()];
                                 for (int i = 0; i < opts.length; i++) {
@@ -812,8 +817,13 @@ public class NavigateActivity extends AppCompatActivity {
                 ArrayList<String> items = new ArrayList<String>();
                 for (Budynki b : found)
                 {
-                    String temp = b.getUnofficial_name().replace(" ; ",", ");
-                    items.add(b.getNazwa_Obiektu()+" , "+temp+" , "+b.getNumber());
+                    String temp = "";
+                    temp+=b.getNazwa_Obiektu().trim();
+                    String un = b.getUnofficial_name().replace(" ; ",", ");
+                    if(!un.equals("")) temp+=", "+un;
+                    String number = b.getNumber();
+                    if(!number.equals("")) temp+=", "+number;
+                    items.add(temp);
                 }
                 final String[] opts = new String[items.size()];
                 for (int i = 0; i < opts.length; i++) {
