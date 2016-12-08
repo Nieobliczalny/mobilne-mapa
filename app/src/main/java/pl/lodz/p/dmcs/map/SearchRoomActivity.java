@@ -139,7 +139,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                                                 }
                                                 if (!symbol.equals("")) {
                                                     if (!unofficial_name2.equals("")) temp +=", ";
-                                                    temp += number;
+                                                    temp += symbol;
                                                 }
                                                 temp+=" )";
                                             }

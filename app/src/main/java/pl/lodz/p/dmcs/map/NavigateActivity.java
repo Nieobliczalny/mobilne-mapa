@@ -216,17 +216,40 @@ public class NavigateActivity extends AppCompatActivity {
                     Budynki temp = new Budynki(name, lng, lat, listaPieter, unofficial_name, number);
                     Log.d("DOOOOOOOG TEMP",temp.toString());
                     listaBudynkow.add(temp);
-                    String unofficial_name2 = building.getString("unofficial_name").replace(" ; ",", ");
-                    String number2 = building.getString("number");
+
                     String temp2 = building.getString("name");
-                    if(!unofficial_name2.equals("") || !number2.equals("")) {
+                    JSONArray units = building.getJSONArray("units");
+                    if(!unofficial_name.equals("") || !number.equals("") || units.length() != 0){
                         temp2+=" ( ";
-                        if (!unofficial_name2.equals("")) {
-                            temp2 += unofficial_name2;
+                        if (!unofficial_name.equals("")) {
+                            temp2 += unofficial_name;
                         }
-                        if (!number2.equals("")) {
-                            if (!unofficial_name2.equals("")) temp2 +=", ";
+                        if (!number.equals("")) {
+                            if (!unofficial_name.equals("")) temp2 +=", ";
                             temp2 += number;
+                        }
+                        if(units.length() != 0){
+                            if (!unofficial_name.equals("") || !number.equals("")) temp2 +=", ";
+                            for (int z = 0; z < units.length(); z++)
+                            {
+                                JSONObject unit = units.getJSONObject(z);
+                                String name2 = unit.getString("name");
+                                String unofficial_name2 = unit.getString("unofficial_name").replace(" ; ",", ");
+                                String symbol = unit.getString("symbol");
+                                if(z > 0) temp2+=", ";
+                                temp2+=name2;
+                                if(!unofficial_name2.equals("") || !symbol.equals("")) {
+                                    temp2+=" ( ";
+                                    if (!unofficial_name2.equals("")) {
+                                        temp2 += unofficial_name2;
+                                    }
+                                    if (!symbol.equals("")) {
+                                        if (!unofficial_name2.equals("")) temp2 +=", ";
+                                        temp2 += symbol;
+                                    }
+                                    temp2+=" )";
+                                }
+                            }
                         }
                         temp2+=" )";
                     }
