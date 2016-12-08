@@ -37,32 +37,41 @@ public class AddUnitActivity extends AppCompatActivity {
                     if(index < temp2.length-1) finalny.append(" ; ");
                     index ++;
                 }
+                if (name.getText().toString().trim().length() > 0) {
+                    JSONObject data = new JSONObject();
+                    try {
+                        data.put("action", "addUnit");
+                        data.put("name", name.getText().toString().trim());
+                        data.put("unofficial_name", finalny.toString());
+                        data.put("number", number.getText().toString().trim());
 
-                JSONObject data = new JSONObject();
-                try {
-                    data.put("action", "addUnit");
-                    data.put("name", name.getText().toString().trim());
-                    data.put("unofficial_name",finalny.toString());
-                    data.put("number", number.getText().toString().trim());
-
-                    data.put("token", token);
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
-
-                SendPostTask task = new SendPostTask();
-                task.setActivity(AddUnitActivity.this);
-                task.setResponseListener(new JsonResponseListener() {
-                    @Override
-                    public void onResponse(final JSONObject obj) {
-                        name.setText("");
-                        un.setText("");
-                        number.setText("");
-                        Toast t = Toast.makeText(AddUnitActivity.this, "Dane o jednostce wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
-                        t.show();
+                        data.put("token", token);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
-                task.execute(data);
+
+                    SendPostTask task = new SendPostTask();
+                    task.setActivity(AddUnitActivity.this);
+                    task.setResponseListener(new JsonResponseListener() {
+                        @Override
+                        public void onResponse(final JSONObject obj) {
+                            name.setText("");
+                            un.setText("");
+                            number.setText("");
+                            Toast t = Toast.makeText(AddUnitActivity.this, "Dane o jednostce wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
+                            t.show();
+                        }
+                    });
+                    task.execute(data);
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast t = Toast.makeText(AddUnitActivity.this, "Jednostka nie może mieć pustej nazwy!", Toast.LENGTH_SHORT);
+                            t.show();
+                        }
+                    });
+                }
             }
         });
     }
