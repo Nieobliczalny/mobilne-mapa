@@ -59,6 +59,7 @@ public class ShowRoomActivity extends AppCompatActivity {
     private String sortType = "BEST";
     private Button otherType = null;
     private  String temp = null;
+    protected JSONArray units = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -157,6 +158,29 @@ public class ShowRoomActivity extends AppCompatActivity {
             }
         });
         task.execute(data);
+
+        if (type.equalsIgnoreCase("building")) {
+            JSONObject data2 = new JSONObject();
+            try {
+                data2.put("action", "getUnits");
+                data2.put("token", token);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            SendPostTask task2 = new SendPostTask();
+            task2.setActivity(ShowRoomActivity.this);
+            task2.setResponseListener(new JsonResponseListener() {
+                @Override
+                public void onResponse(final JSONObject obj) {
+                    try {
+                        units = obj.getJSONArray("data");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            task2.execute(data2);
+        }
 
     }
 
@@ -409,12 +433,14 @@ public class ShowRoomActivity extends AppCompatActivity {
         {
             menu.findItem(R.id.menuAddUName).setVisible(true);
             menu.findItem(R.id.menuChangeNumber).setVisible(true);
+            menu.findItem(R.id.menuAddUnit).setVisible(true);
             menu.findItem(R.id.menuRoomType).setVisible(false);
         }
         else
         {
             menu.findItem(R.id.menuAddUName).setVisible(false);
             menu.findItem(R.id.menuChangeNumber).setVisible(false);
+            menu.findItem(R.id.menuAddUnit).setVisible(false);
             menu.findItem(R.id.menuRoomType).setVisible(true);
         }
         return true;
@@ -616,6 +642,72 @@ public class ShowRoomActivity extends AppCompatActivity {
                                                         @Override
                                                         public void run() {
                                                             Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o typie sali wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
+                                                            t.show();
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                            task.execute(data);
+                                        } else {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast t = Toast.makeText(ShowRoomActivity.this, "Taka informacja już jest, nie ma potrzeby dodawać ponownie.", Toast.LENGTH_SHORT);
+                                                    t.show();
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                        AlertDialog d = builder.create();
+                        d.show();
+                    }
+                });
+                return true;
+            case R.id.menuAddUnit:
+                final String[] opts2 = new String[units.length()];
+                for (int i = 0; i < opts2.length; i++) {
+                    try {
+                        opts2[i] = units.getJSONObject(i).getString("name");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(ShowRoomActivity.this);
+                        builder.setTitle("Dodaj jednostkę korzystającą z tego budynku")
+                                .setItems(opts2, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // The 'which' argument contains the index position
+                                        // of the selected item
+                                        int type = -1;
+                                        try {
+                                            type = building.getInt("type");
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        //TODO: Blokada gdy jednostka jest przypisana do budynku
+                                        if (true || which != type) {
+                                            JSONObject data = new JSONObject();
+                                            try {
+                                                data.put("action", "proposeNewUnit");
+                                                data.put("id", id);
+                                                data.put("unit", units.getJSONObject(which).getInt("id"));
+                                                data.put("token", token);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            SendPostTask task = new SendPostTask();
+                                            task.setActivity(ShowRoomActivity.this);
+                                            task.setResponseListener(new JsonResponseListener() {
+                                                @Override
+                                                public void onResponse(final JSONObject obj) {
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            Toast t = Toast.makeText(ShowRoomActivity.this, "Dane o jednostce wysłane. Po rozpatrzeniu propozycji przez Administratora otrzymasz e-mail o akceptacji/odrzuceniu.", Toast.LENGTH_SHORT);
                                                             t.show();
                                                         }
                                                     });

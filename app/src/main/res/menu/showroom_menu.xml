@@ -5,6 +5,8 @@
         android:id="@+id/menuRoomType" />
     <item android:title="Dodaj nazwę"
         android:id="@+id/menuAddUName" />
+    <item android:title="Dodaj jednostkę"
+        android:id="@+id/menuAddUnit" />
     <item android:title="Zmień oznaczenie"
         android:id="@+id/menuChangeNumber" />
 </menu>
