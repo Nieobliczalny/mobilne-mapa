@@ -107,7 +107,14 @@ public class SearchRoomActivity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            if (pattern.matcher(obj.getString("name")).find() || pattern.matcher(obj.getString("number")).find() || pattern.matcher(obj.getString("unofficial_name")).find())
+                            boolean isUnitMatch = false;
+                            JSONArray unitArray = obj.getJSONArray("units");
+                            for (int j = 0; j < unitArray.length(); j++)
+                            {
+                                JSONObject unit = unitArray.getJSONObject(j);
+                                if (pattern.matcher(unit.getString("name")).find() || pattern.matcher(unit.getString("symbol")).find() || pattern.matcher(unit.getString("unofficial_name")).find()) isUnitMatch = true;
+                            }
+                            if (pattern.matcher(obj.getString("name")).find() || pattern.matcher(obj.getString("number")).find() || pattern.matcher(obj.getString("unofficial_name")).find() || isUnitMatch)
                             {
                                 String unofficial_name = obj.getString("unofficial_name").replace(" ; ",", ");
                                 String number = obj.getString("number");
