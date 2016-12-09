@@ -159,6 +159,8 @@ public class AdminBuildingsFragment extends Fragment {
                 if(!un.equals("")) sb.append("\r\nNazwy nieoficjalne: "+un.replace(" ; ",", "));
                 String number = values.get(position).getString("number");
                 if(!number.equals("")) sb.append("\r\nSymbol: "+number);
+                String units = values.get(position).getString("building_units");
+                if(!units.equals("")) sb.append("\r\nJednostki: "+units);
                 textView3.setText(sb.toString());
                 Button btnAccept = (Button) rowView.findViewById(R.id.btnAccept);
                 btnAccept.setOnClickListener(new View.OnClickListener() {
