@@ -107,10 +107,10 @@ public class SendPostTask extends AsyncTask<JSONObject, Integer, String> {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000 /* milliseconds */);
         conn.setConnectTimeout(15000 /* milliseconds */);
+        conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
         conn.setRequestMethod("POST");
         conn.setDoInput(true);
         conn.setDoOutput(true);
-        conn.setChunkedStreamingMode(0);
         // Starts the query
         OutputStream outputPost = new BufferedOutputStream(conn.getOutputStream());
         outputPost.write(data.toString().getBytes());
